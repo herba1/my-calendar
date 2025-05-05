@@ -1,63 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { Separator } from "../ui/separator";
+import TaskCard from "./TaskCard";
 import { Button } from "../ui/button";
-import { supabase } from "../../lib/supabase";
-import { Badge } from "../ui/badge";
-import clsx from "clsx";
-
-
-function TaskCard({
-  priority = "medium",
-  title = "Some Task",
-  desc = "No description",
-  dateDue = "No Date",
-  id,
-  handleDelete,
-  handleComplete,
-  is_completed=false,
-  tags,
-}) {
-  let badgeClassName = "";
-  if (priority === "low") {
-    badgeClassName = " bg-green-500 ";
-  } else if (priority === "high") {
-    badgeClassName = " bg-red-500 ";
-  } else {
-    badgeClassName = " bg-yellow-500 ";
-  }
-
-  return (
-    <Card className={clsx(`w-70 p-5 flex flex-col`, is_completed?' bg-green-100 ':'' )}>
-      <CardTitle className={`text-xl`}>{title + id}</CardTitle>
-      <CardContent>{desc}</CardContent>
-      <CardDescription className={`flex flex-col gap-1`}>
-        <Badge className={` ${badgeClassName} `}>{priority}</Badge>
-        <span>date due:{dateDue}</span>
-        <span>date created:{dateDue}</span>
-      </CardDescription>
-      <CardFooter
-        className={` flex justify-between w-full  p-0 self-end text-nowrap`}
-      >
-        <Button variant={"destructive"} onClick={() => handleDelete(id)}>
-          Remove
-        </Button>
-        <Button variant={"default"} onClick={() => handleComplete(id,is_completed)}>
-          Complete
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
 
 export default function TaskCards() {
   const [currentTask, setCurrentTask] = useState([]);
@@ -139,6 +83,7 @@ export default function TaskCards() {
         title={task.title}
         desc={task.description}
         dateDue={task.due_at}
+        dateCreated={task.created_at}
         tags={task.tags}
         id={task.task_id}
       ></TaskCard>
