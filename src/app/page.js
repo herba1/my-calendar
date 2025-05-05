@@ -1,6 +1,6 @@
 
-import TaskCards from "@/components/task/TaskCards";
-import TextAreaForm from "@/components/ui/textareaform";
+import TaskCards from "@/app/components/task/TaskCards";
+import TextAreaForm from "@/app/components/ui/textareaform";
 
 export default function Home() {
   return (

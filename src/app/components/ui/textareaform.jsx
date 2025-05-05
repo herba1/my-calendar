@@ -48,7 +48,7 @@ export default function TextAreaForm() {
             </span>
           </div>
           <Button disabled={state === "loading"} type="submit">
-            Shoot!
+            Go! 
           </Button>
         </div>
       </div>
