@@ -3,7 +3,7 @@ import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { useState } from "react";
 
-export default function TextAreaForm() {
+export default function TextAreaForm({ handleTaskChange }) {
   const [input, setInput] = useState("");
   const [inputSize, setInputSize] = useState(0);
   const [state, setState] = useState("default"); // default | loading
@@ -18,11 +18,30 @@ export default function TextAreaForm() {
         e.target.form.requestSubmit();
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    // setState("loading");
-      setInput("");
-      setInputSize(0);
+    setState('loading')
+    try{
+      const response = await fetch('../../api/ai',{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          message:input
+        })
+      })
+      const data = await response.json();
+      console.log(data);
+    setState('default');
+    setInput('');
+    handleTaskChange();
+    }
+    catch(e){
+      console.error(e);
+    setState('default')
+    setInput('')
+    }
   }
 
   return (

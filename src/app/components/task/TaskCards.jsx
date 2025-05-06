@@ -3,28 +3,8 @@ import { useState, useEffect } from "react";
 import TaskCard from "./TaskCard";
 import { Button } from "../ui/button";
 
-export default function TaskCards() {
-  const [currentTask, setCurrentTask] = useState([]);
+export default function TaskCards({tasks, handleTaskChange}) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  // INITIALIZE DATA
-  useEffect(() => {
-    async function getData() {
-      try {
-        const response = await fetch('../../api/task/');
-        if(!response.ok){
-          throw new Error(`response error ${response.status}`);
-        }
-        const data = await response.json();
-        setCurrentTask(data);
-
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    getData();
-  }, [refreshTrigger]);
-
 
   // CREATE A NEW TASK
   async function handleSubmit(e){
@@ -41,7 +21,7 @@ export default function TaskCards() {
       }
       const data = await response.json();
       console.log(`data at client ${data}`)
-      setRefreshTrigger(refreshTrigger+1)
+      handleTaskChange();
     }
     catch(e){
       console.error(`e`)
@@ -63,7 +43,7 @@ export default function TaskCards() {
         })
       })
       if(!response.ok){throw new Error(`response:${response.status}`)}
-      setRefreshTrigger(refreshTrigger+1);
+      handleTaskChange();
     }
     catch(error){
       console.error(error);
@@ -72,7 +52,7 @@ export default function TaskCards() {
   }
 
   // create my task list to render
-  let tasks = currentTask.map((task) => {
+  let tasksCards = tasks.map((task) => {
     return (
       <TaskCard
         handleDelete={handleDelete}
@@ -104,7 +84,7 @@ export default function TaskCards() {
         throw new Error(`response error ${response.status}`);
       }
       const data = await response.json();
-      setRefreshTrigger(refreshTrigger+1)
+      handleTaskChange();
     }
     catch(e){
       console.error(`${e}`)
@@ -115,7 +95,7 @@ export default function TaskCards() {
   return (
     <div className={`cards-container gap-5 flex flex-wrap justify-center `}>
       <Button onClick={handleSubmit}>submit</Button>
-      {tasks}
+      {tasksCards}
     </div>
   );
 }
