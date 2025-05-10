@@ -35,12 +35,14 @@ export default function TextAreaForm({ handleTaskChange }) {
       console.log(data);
     setState('default');
     setInput('');
+    setInputSize(0);
     handleTaskChange();
     }
     catch(e){
       console.error(e);
     setState('default')
     setInput('')
+    setInputSize(0);
     }
   }
 
@@ -67,7 +69,7 @@ export default function TextAreaForm({ handleTaskChange }) {
             </span>
           </div>
           <Button disabled={state === "loading"} type="submit">
-            Go! 
+            {state==="loading"?"One sec...":"Go!"} 
           </Button>
         </div>
       </div>

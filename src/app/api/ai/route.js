@@ -6,7 +6,7 @@ async function getGemini(message) {
     apiKey: process.env.GEMINI_API_KEY,
   });
   const config = {
-    maxOutputTokens: 700,
+    maxOutputTokens: 1000,
     responseMimeType: "application/json",
     systemInstruction: [
       {
@@ -21,7 +21,8 @@ async function getGemini(message) {
   based on this schema create a json, and i assert that you only reply in json based on the schema and based on me talking about what i have to do, if no task is found you may return empty json object, try to create maningful task however based on my thoghts even if it may seem minor it could be important, tags shoudl be only strings and use no delimters. Tags should not be delimited and simply be strings
   
   At the TOP of the JSON make sure you add wether a DELETE method, or POST method, or PUT method based on language and like so method:method based on language you can assume most of the time it will be POST, if no task is found make an Error key value pair with explanation of not found
-  if you return an error make sure its inside an array`,
+  if you return an error make sure its inside an array,
+  todays date is ${new Date()}`,
       },
     ],
   };
@@ -49,7 +50,7 @@ async function getGemini(message) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    // setup for any reponse
+    // setup for any ai provider 
     const data = await getGemini(body.message);
     const res = await parseTask(data);
     return Response.json(
@@ -62,11 +63,10 @@ export async function POST(request) {
   }
 }
 
+// this fnction will take an array of json and access DB
 async function parseTask(text) {
   try {
     const tasks = await JSON.parse(text);
-    console.log(`tasks`)
-    console.log(tasks);
     for (const task of tasks) {
       if (task.error) {
         console.log(error);
@@ -85,14 +85,14 @@ async function parseTask(text) {
         } else {
           console.log("success creating task");
         }
-
-        }
+      }
     }
-        return Response.json(
-          { data, error },
-          { status: 201, headers: { "Content-Type": "application/json" } })
+    return Response.json(
+      { message:"Success" },
+      { status: 201, headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.error(error);
+    console.error(`Error parsing new tasks: ${error}`);
     return Response.json({ error }, { status: 500 });
   }
 }
