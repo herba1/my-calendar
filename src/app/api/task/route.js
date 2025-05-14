@@ -1,10 +1,10 @@
 import { supabase } from "@/app/lib/supabase";
 
+// get all task
 export async function GET() {
   try {
     const { data, error } = await supabase.from("task").select("*");
     if (data) {
-      // console.log(data);
     }
     return Response.json(data);
   } catch (e) {

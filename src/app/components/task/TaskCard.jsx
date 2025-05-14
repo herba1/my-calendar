@@ -33,7 +33,7 @@ export default function TaskCard({
   }
 
   return (
-    <Card className={clsx(`w-70 p-5 flex flex-col`, is_completed?' bg-green-100 ':'' )}>
+    <Card className={clsx(`w-70 p-5 flex flex-col h-fit`, is_completed?' bg-green-100 ':'' )}>
       <CardTitle className={`text-xl`}>{title}</CardTitle>
       <CardContent>{desc}</CardContent>
       <CardDescription className={`flex flex-col gap-1`}>

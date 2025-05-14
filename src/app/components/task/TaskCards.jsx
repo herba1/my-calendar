@@ -2,53 +2,52 @@
 import { useState, useEffect } from "react";
 import TaskCard from "./TaskCard";
 import { Button } from "../ui/button";
+import TaskCardSkeleton from "../skeleton/TaskCardSkeleton";
+import { TaskCardsSkeleton } from "../skeleton/TaskCardSkeleton"
 
-export default function TaskCards({tasks, handleTaskChange}) {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskStateProp }) {
 
   // CREATE A NEW TASK
-  async function handleSubmit(e){
-    try{
-      const response = await fetch('../../api/task',{
-        method:'POST',
-        headers:{
-          'Content-Type': 'application/json'
+  async function handleSubmit(e) {
+    try {
+      const response = await fetch("../../api/task", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({title:'this was submitted'}),
+        body: JSON.stringify({ title: "this was submitted" }),
       });
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`response error ${response.status}`);
       }
       const data = await response.json();
-      console.log(`data at client ${data}`)
+      console.log(`data at client ${data}`);
       handleTaskChange();
+    } catch (e) {
+      console.error(`e`);
     }
-    catch(e){
-      console.error(`e`)
-    }
-
   }
 
   // PUT task to update send object of updated tast and task id
-  async function handleComplete(task_id,is_completed) {
-    try{
-      const response = await fetch('../../api/task',{
-        method:'PUT',
-        headers:{
-          'Content-Type': 'application/json'
+  async function handleComplete(task_id, is_completed) {
+    try {
+      const response = await fetch("../../api/task", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          task_id:task_id,
-          is_completed:!is_completed,
-        })
-      })
-      if(!response.ok){throw new Error(`response:${response.status}`)}
+          task_id: task_id,
+          is_completed: !is_completed,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`response:${response.status}`);
+      }
       handleTaskChange();
-    }
-    catch(error){
+    } catch (error) {
       console.error(error);
     }
-
   }
 
   // create my task list to render
@@ -71,30 +70,29 @@ export default function TaskCards({tasks, handleTaskChange}) {
   });
 
   //  delete function
-  async function handleDelete(taskId){
-    try{
-      const response = await fetch('../../api/task',{
-        method:'DELETE',
-        headers:{
-          'Content-Type': 'application/json'
+  async function handleDelete(taskId) {
+    try {
+      const response = await fetch("../../api/task", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({task_id:taskId}),
+        body: JSON.stringify({ task_id: taskId }),
       });
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`response error ${response.status}`);
       }
       const data = await response.json();
       handleTaskChange();
+    } catch (e) {
+      console.error(`${e}`);
     }
-    catch(e){
-      console.error(`${e}`)
-    }
-
   }
 
   return (
     <div className={`cards-container gap-5 flex flex-wrap justify-center `}>
-      <Button onClick={handleSubmit}>submit</Button>
+      {/* <Button onClick={handleSubmit}>submit</Button> */}
+      {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>}
       {tasksCards}
     </div>
   );

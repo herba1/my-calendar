@@ -2,15 +2,16 @@ import { GoogleGenAI } from "@google/genai";
 import { supabase } from "@/app/lib/supabase";
 
 async function getGemini(message) {
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-  });
-  const config = {
-    maxOutputTokens: 1000,
-    responseMimeType: "application/json",
-    systemInstruction: [
-      {
-        text: `created_at timestamp with time zone null default now(),
+  try {
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    });
+    const config = {
+      maxOutputTokens: 1000,
+      responseMimeType: "application/json",
+      systemInstruction: [
+        {
+          text: `created_at timestamp with time zone null default now(),
   due_at timestamp with time zone null,
   title text not null default 'Unnamed Task'::text,
   description text null,
@@ -23,34 +24,42 @@ async function getGemini(message) {
   At the TOP of the JSON make sure you add wether a DELETE method, or POST method, or PUT method based on language and like so method:method based on language you can assume most of the time it will be POST, if no task is found make an Error key value pair with explanation of not found
   if you return an error make sure its inside an array,
   todays date is ${new Date()}`,
-      },
-    ],
-  };
-  const model = "gemini-2.0-flash";
-  const contents = [
-    {
-      role: "user",
-      parts: [
-        {
-          text: `${message}`,
         },
       ],
-    },
-  ];
+    };
+    const model = "gemini-2.0-flash";
+    const contents = [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `${message}`,
+          },
+        ],
+      },
+    ];
 
-  const response = await ai.models.generateContent({
-    model,
-    config,
-    contents,
-  });
-  return response.text;
+    const response = await ai.models.generateContent({
+      model,
+      config,
+      contents,
+    });
+    if (response && response.text) {
+      return response.text;
+    } else {
+      throw new Error("Invalid or bad response from AI");
+    }
+  } catch (error) {
+    console.error("AI processing error:", error);
+    return JSON.stringify([{ error: "Failed to process ai response" }]);
+  }
 }
 
 // should be built to switch between ai providers
 export async function POST(request) {
   try {
     const body = await request.json();
-    // setup for any ai provider 
+    // setup for any ai provider
     const data = await getGemini(body.message);
     const res = await parseTask(data);
     return Response.json(
@@ -88,7 +97,7 @@ async function parseTask(text) {
       }
     }
     return Response.json(
-      { message:"Success" },
+      { message: "Success" },
       { status: 201, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {

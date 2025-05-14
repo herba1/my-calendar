@@ -3,10 +3,9 @@ import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { useState } from "react";
 
-export default function TextAreaForm({ handleTaskChange }) {
+export default function TextAreaForm({ handleTaskChange, taskState, setTaskStateProp }) {
   const [input, setInput] = useState("");
   const [inputSize, setInputSize] = useState(0);
-  const [state, setState] = useState("default"); // default | loading
 
   function handleInput(e) {
     setInput(e.target.value);
@@ -20,7 +19,7 @@ export default function TextAreaForm({ handleTaskChange }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setState('loading')
+    setTaskStateProp('loading')
     try{
       const response = await fetch('../../api/ai',{
         method:"POST",
@@ -33,14 +32,14 @@ export default function TextAreaForm({ handleTaskChange }) {
       })
       const data = await response.json();
       console.log(data);
-    setState('default');
+    setTaskStateProp('default');
     setInput('');
     setInputSize(0);
     handleTaskChange();
     }
     catch(e){
       console.error(e);
-    setState('default')
+    setTaskStateProp('default')
     setInput('')
     setInputSize(0);
     }
@@ -59,7 +58,7 @@ export default function TextAreaForm({ handleTaskChange }) {
           maxLength="500"
           value={input}
           onChange={handleInput}
-          disabled={state === "loading"}
+          disabled={taskState === "loading"}
           onKeyDown={handleKeyDown}
         ></Textarea>
         <div className="bottom flex justify-between items-center">
@@ -68,8 +67,8 @@ export default function TextAreaForm({ handleTaskChange }) {
               {inputSize}/500
             </span>
           </div>
-          <Button disabled={state === "loading"} type="submit">
-            {state==="loading"?"One sec...":"Go!"} 
+          <Button disabled={taskState === "loading"} type="submit">
+            {taskState==="loading"?"One sec...":"Go!"} 
           </Button>
         </div>
       </div>
