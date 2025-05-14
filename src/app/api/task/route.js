@@ -9,6 +9,7 @@ export async function GET() {
     return Response.json(data);
   } catch (e) {
     console.error(e, error);
+    return Response.json({error:error})
   }
 }
 
@@ -65,13 +66,13 @@ export async function PUT(request){
         const is_completed = body.is_completed;
         const { data,error } = await supabase
             .from('task')
-            .update({ is_completed:is_completed })
+            .update({ ...body })
             .eq('task_id',task_id)
         return Response.json({ data,error },{ status:201})
     }
     catch(e){
         console.error(e);
-        return Response.json({error: e.message}, { status:503})
+        return Response.json({error: e, message:"Error PUT task"}, { status:503})
     }
 }
 

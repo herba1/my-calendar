@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <div className=" h-full w-full flex flex-col ">
-      <TextAreaForm setTaskState={setTaskState} taskState={taskState} handleTaskChange={handleTaskChange} setTaskStateProp={setTaskStateProp}></TextAreaForm>
+      <TextAreaForm tasks={tasks} setTaskState={setTaskState} taskState={taskState} handleTaskChange={handleTaskChange} setTaskStateProp={setTaskStateProp}></TextAreaForm>
       <TaskCards
         handleTaskChange={handleTaskChange}
         tasks={tasks}

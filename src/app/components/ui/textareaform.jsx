@@ -3,7 +3,12 @@ import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { useState } from "react";
 
-export default function TextAreaForm({ handleTaskChange, taskState, setTaskStateProp }) {
+export default function TextAreaForm({
+  handleTaskChange,
+  taskState,
+  setTaskStateProp,
+  tasks,
+}) {
   const [input, setInput] = useState("");
   const [inputSize, setInputSize] = useState(0);
 
@@ -12,36 +17,46 @@ export default function TextAreaForm({ handleTaskChange, taskState, setTaskState
     setInputSize(e.target.value.length);
   }
 
-  function handleKeyDown(e){
-    if(e.key==='Enter' && e.metaKey || e.ctrlKey)
-        e.target.form.requestSubmit();
+  function handleKeyDown(e) {
+    if ((e.key === "Enter" && e.metaKey) || e.ctrlKey)
+      e.target.form.requestSubmit();
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setTaskStateProp('loading')
-    try{
-      const response = await fetch('../../api/ai',{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
+    setTaskStateProp("loading");
+    // for now im sending entire tasks not relevant task
+    let relevantTask = tasks.map(task=>{
+      return{
+        task_id:task.task_id,
+        created_at:task.created_at,
+        title:task.title,
+        due_at:task.due_at,
+      }
+    })
+    try {
+      const response = await fetch("../../api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify({
-          message:input
-        })
-      })
+        body: JSON.stringify({
+          message: input,
+          // for now im sending entire tasks
+          tasks: tasks,
+        }),
+      });
       const data = await response.json();
       console.log(data);
-    setTaskStateProp('default');
-    setInput('');
-    setInputSize(0);
-    handleTaskChange();
-    }
-    catch(e){
+      setTaskStateProp("default");
+      setInput("");
+      setInputSize(0);
+      handleTaskChange();
+    } catch (e) {
       console.error(e);
-    setTaskStateProp('default')
-    setInput('')
-    setInputSize(0);
+      setTaskStateProp("default");
+      setInput("");
+      setInputSize(0);
     }
   }
 
@@ -67,8 +82,11 @@ export default function TextAreaForm({ handleTaskChange, taskState, setTaskState
               {inputSize}/500
             </span>
           </div>
-          <Button disabled={taskState === "loading"} type="submit">
-            {taskState==="loading"?"One sec...":"Go!"} 
+          <Button
+            disabled={taskState === "loading" || inputSize == 0}
+            type="submit"
+          >
+            {taskState === "loading" ? "One sec..." : "Go!"}
           </Button>
         </div>
       </div>
