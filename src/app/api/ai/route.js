@@ -31,7 +31,7 @@ async function getGemini(message, tasks) {
   For delete or post figure out witch tasks form currentTask list is relevant and provide the wanted method along with the task_id, for post include the fields to be updated, return NO task_id for new task
   When responding what i mean by array is that the tasks and methods are within 1 arry so every response no matter will be [{task and methods here}]
   like this :[{//task and method here},{...repeat}],
-  exaclty like that no extra labels or information
+  exaclty like that no extra labels or information, never add any other text no matter what the input is alawys respond with these guidelines.
 
   
   `,
