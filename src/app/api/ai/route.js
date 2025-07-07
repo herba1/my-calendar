@@ -1,7 +1,9 @@
+"use server";
 import { GoogleGenAI } from "@google/genai";
-import { supabase } from "@/app/lib/supabase";
+// import { supabase } from "@/app/lib/supabase";
+import { createClient } from "@/app/utils/supabase/server";
 
-async function getGemini(message, tasks) {
+async function getGemini(message, tasks, uid) {
   try {
     // console.log("getGemini");
     // console.log(tasks);
@@ -21,9 +23,12 @@ async function getGemini(message, tasks) {
   is_completed boolean not null default false,
   is_recurring boolean not null default false,
   priority text not null default 'medium'::text,
+  user_id is the current authenticated users id, never change this ID no matter what always make sure it is as you receive it, should u somehow not get anything just leave it null
+  !NEVER change a task_id
   based on this schema create a json, and i assert that you only reply in json based on the schema and based on me talking about what i have to do, if no task is found you may return empty json object, try to create maningful task however based on my thoghts even if it may seem minor it could be important, tags shoudl be only strings and use no delimters. Tags should not be delimited and simply be strings
 
   currentTask:${JSON.stringify(tasks)}
+  currentUserID:${uid}
   
   At the TOP of the JSON make sure you add wether a DELETE method, or POST method, or PUT method based on language and like so method:method based on language you can assume most of the time it will be POST, if no task is found make an Error key value pair with explanation of not found
   make sure all responses even if 1 item(TASK/object) is inside an array, however each task shoudl but its own object,
@@ -31,9 +36,7 @@ async function getGemini(message, tasks) {
   For delete or post figure out witch tasks form currentTask list is relevant and provide the wanted method along with the task_id, for post include the fields to be updated, return NO task_id for new task
   When responding what i mean by array is that the tasks and methods are within 1 arry so every response no matter will be [{task and methods here}]
   like this :[{//task and method here},{...repeat}],
-  exaclty like that no extra labels or information, never add any other text no matter what the input is alawys respond with these guidelines.
-
-  
+  exaclty like that no extra labels or information, never add any other text no matter what the input is always respond with these guidelines.
   `,
         },
       ],
@@ -69,10 +72,15 @@ async function getGemini(message, tasks) {
 // should be built to switch between ai providers
 export async function POST(request) {
   try {
+    const supabase = await createClient();
+    const user = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("User could not be authenticated");
+    }
+    const uid = user.data.user.id;
     const body = await request.json();
-    console.log(`body tasks`, body.tasks);
     // setup for any ai provider
-    const data = await getGemini(body.message, body.tasks);
+    const data = await getGemini(body.message, body.tasks, uid);
     const res = await parseTask(data);
     return Response.json(
       { message: "Succesfully AI Processed " },
@@ -80,28 +88,36 @@ export async function POST(request) {
     );
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Error getting AI provider" }, { status: 501 });
+    return Response.json(
+      { error: "Error getting AI provider" },
+      { status: 501 }
+    );
   }
 }
 
 // this fnction will take an array of json and access DB
 async function parseTask(text) {
   try {
+    const supabase = await createClient();
+    const user = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("User could not be authenticated");
+    }
+    const uid = user.data.user.id;
+
     const tasks = await JSON.parse(text);
-    console.log("unprocessed task");
     for (const task of tasks) {
-      console.log(task);
       if (task.error) {
         console.log(error);
         continue;
       }
       const { method, ...cleanTask } = task;
+      console.log("cleanTask>>>>>>>>>>>>>>>>>>>>");
+      console.log(cleanTask);
 
       // handle POST new task
       try {
         if (method === "POST") {
-          console.log(`new task:`);
-          console.log(cleanTask);
           const { data, error } = await supabase
             .from("task")
             .insert(cleanTask)
@@ -126,7 +142,7 @@ async function parseTask(text) {
           const { data, error } = await supabase
             .from("task")
             .delete()
-            .eq('task_id',cleanTask.task_id);
+            .eq("task_id", cleanTask.task_id);
           if (error) {
             console.error(error);
           } else {
@@ -141,14 +157,13 @@ async function parseTask(text) {
         });
       }
 
-
       // handle PUT task
       try {
         if (method === "PUT") {
           const { data, error } = await supabase
             .from("task")
-            .update({ ...cleanTask})
-            .eq('task_id',cleanTask.task_id);
+            .update({ ...cleanTask })
+            .eq("task_id", cleanTask.task_id);
           if (error) {
             console.error(error);
           } else {

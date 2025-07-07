@@ -1,16 +1,14 @@
-import { supabase } from "@/app/lib/supabase";
+// import { supabase } from "@/app/lib/supabase";
 import { createClient } from "@/app/utils/supabase/server";
 
 // get all task
 export async function GET() {
-  const supabase1 = await createClient()
-  const {data, error} = supabase1.auth.getUser();
-  console.log('user data',data);
-  console.log('user error',error);
+  const supabase = await createClient()
+  const {data, error} = await supabase.auth.getUser();
   try {
-    const { data, error } = await supabase1.from("task").select("*");
+    // RLS policy filters users task
+    const { data, error } = await supabase.from("task").select("*");
     if (data) {
-      console.log(data)
     }
     return Response.json(data);
   } catch (e) {
@@ -21,6 +19,7 @@ export async function GET() {
 
 // will have to change to poast many based on schema and linked to AI
 export async function POST(request) {
+  const supabase = await createClient()
   try {
     // should take in new task
     const newTask = await request.json();
@@ -46,6 +45,7 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  const supabase = await createClient()
   try {
     const body = await request.json();
     console.log(body);
@@ -62,6 +62,7 @@ export async function DELETE(request) {
 }
 
 export async function PUT(request) {
+  const supabase = await createClient()
   try {
     const body = await request.json();
     console.log(`PUT:${body}`);
