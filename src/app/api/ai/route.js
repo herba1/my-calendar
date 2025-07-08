@@ -2,6 +2,7 @@
 import { GoogleGenAI } from "@google/genai";
 // import { supabase } from "@/app/lib/supabase";
 import { createClient } from "@/app/utils/supabase/server";
+import { userAgent } from "next/server";
 
 async function getGemini(message, tasks, uid) {
   try {
@@ -73,11 +74,61 @@ async function getGemini(message, tasks, uid) {
 export async function POST(request) {
   try {
     const supabase = await createClient();
-    const user = await supabase.auth.getUser();
+    let user = await supabase.auth.getUser();
+    let uid = user.data.user.id;
     if (!user) {
-      throw new Error("User could not be authenticated");
     }
-    const uid = user.data.user.id;
+    console.log(user);
+    console.log(uid);
+    const response = await supabase.from("usage").select("*");
+    const usage = response.data[0];
+    // create record if not existing
+    if (!usage) {
+      const { data, error } = await supabase.from("usage").insert({
+        count: 1,
+        timestamp: new Date().toISOString().split("T")[0],
+      });
+      if (error) {
+        throw new Error("error making bucket record");
+      }
+      //if record exist
+    } else if (usage) {
+      // handle limits or reset first
+      if (usage.count >= usage.limit) {
+        // handle reset
+        const dateDb = usage.timestamp;
+        const date = new Date().toISOString().split("T")[0];
+        if (date != dateDb) {
+          const { error } = await supabase
+            .from("usage")
+            .update({
+              count: 1,
+              timestamp: new Date().toISOString().split("T")[0],
+            })
+            .eq("user_id", uid);
+          if (error) {
+            console.error(error);
+            throw new Error("Unable to reset token usage");
+          }
+        } else {
+          // token limit hit today
+          console.log("Token Limit hit");
+          return Response.json(
+            { message: "Token limit hit for today" },
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+        // else increment token usage
+      } else {
+        const { data, error } = await supabase
+          .from("usage")
+          .update({ count: usage.count + 1 })
+          .eq("user_id", uid);
+        if (error) {
+          throw new Error("Failure incresing token usage");
+        }
+      }
+    }
     const body = await request.json();
     // setup for any ai provider
     const data = await getGemini(body.message, body.tasks, uid);
@@ -112,8 +163,6 @@ async function parseTask(text) {
         continue;
       }
       const { method, ...cleanTask } = task;
-      console.log("cleanTask>>>>>>>>>>>>>>>>>>>>");
-      console.log(cleanTask);
 
       // handle POST new task
       try {
