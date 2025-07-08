@@ -74,12 +74,14 @@ async function getGemini(message, tasks, uid) {
 export async function POST(request) {
   try {
     const supabase = await createClient();
-    let user = await supabase.auth.getUser();
-    let uid = user.data.user.id;
-    if (!user) {
-    }
+    // let user = await supabase.auth.getUser();
+    let { data:{user},error} = await supabase.auth.getUser();
     console.log(user);
-    console.log(uid);
+    if (!user) {
+      user = await supabase.auth.signInAnonymously();
+      user = user.data.user;
+    }
+    let uid = user.id;
     const response = await supabase.from("usage").select("*");
     const usage = response.data[0];
     // create record if not existing
@@ -87,6 +89,7 @@ export async function POST(request) {
       const { data, error } = await supabase.from("usage").insert({
         count: 1,
         timestamp: new Date().toISOString().split("T")[0],
+        limit: user.is_anonymous?3:null
       });
       if (error) {
         throw new Error("error making bucket record");
