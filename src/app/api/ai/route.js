@@ -75,7 +75,10 @@ export async function POST(request) {
   try {
     const supabase = await createClient();
     // let user = await supabase.auth.getUser();
-    let { data:{user},error} = await supabase.auth.getUser();
+    let {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
     console.log(user);
     if (!user) {
       user = await supabase.auth.signInAnonymously();
@@ -89,7 +92,7 @@ export async function POST(request) {
       const { data, error } = await supabase.from("usage").insert({
         count: 1,
         timestamp: new Date().toISOString().split("T")[0],
-        limit: user.is_anonymous?3:null
+        limit: user.is_anonymous ? 25 : null,
       });
       if (error) {
         throw new Error("error making bucket record");
