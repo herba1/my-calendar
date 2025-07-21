@@ -8,6 +8,7 @@ export default function TextAreaForm({
   taskState,
   setTaskStateProp,
   tasks,
+  className
 }) {
   const [input, setInput] = useState("");
   const [inputSize, setInputSize] = useState(0);
@@ -61,15 +62,15 @@ export default function TextAreaForm({
   }
 
   return (
-    <form action={"#"} onSubmit={handleSubmit} className={` w-full h-full p-6`}>
+    <form action={"#"} onSubmit={handleSubmit} className={` w-full  h-full p-2  ${className} `}>
       <div
-        className={`transition-all focus-within:ring-2 border-2 rounded-lg max-h-fit p-2`}
+        className={`transition-all bg-white focus-within:ring-2 border-2 rounded-lg max-h-fit p-2`}
       >
         <Textarea
           placeholder={
             "Tell me about your plans here (appointments, task, important dates). "
           }
-          className={` max-h-72 border-none outline-none shadow-none focus-visible:ring-0 resize-none scroll`}
+          className={`border-none outline-none shadow-none focus-visible:ring-0 resize-none scroll`}
           maxLength="500"
           value={input}
           onChange={handleInput}

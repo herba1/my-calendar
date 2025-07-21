@@ -90,7 +90,7 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
   }
 
   return (
-    <div className={`cards-container gap-5 flex flex-wrap justify-center `}>
+    <div className={`cards-container gap-4 flex flex-col justify-center items-center p-2  `}>
       {/* <Button onClick={handleSubmit}>submit</Button> */}
       {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>}
       {tasksCards}

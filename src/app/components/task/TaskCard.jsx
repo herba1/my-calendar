@@ -4,12 +4,14 @@ import {
   CardContent,
   CardDescription,
   CardFooter,
+  CardHeader,
   CardTitle,
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import clsx from "clsx";
 import formatDateMonthDayTime from "@/app/lib/dateString";
+import { Check, Trash2 } from "lucide-react";
 
 export default function TaskCard({
   priority = "medium",
@@ -20,7 +22,7 @@ export default function TaskCard({
   id,
   handleDelete,
   handleComplete,
-  is_completed=false,
+  is_completed = false,
   tags,
 }) {
   let badgeClassName = "";
@@ -31,26 +33,43 @@ export default function TaskCard({
   } else {
     badgeClassName = " bg-yellow-500 ";
   }
+  console.log(dateDue);
 
   return (
-    <Card className={clsx(`w-70 p-5 flex flex-col h-fit`, is_completed?' bg-green-100 ':'' )}>
-      <CardTitle className={`text-xl`}>{title}</CardTitle>
-      <CardContent>{desc}</CardContent>
-      <CardDescription className={`flex flex-col gap-1`}>
-        <Badge className={` ${badgeClassName} `}>{priority}</Badge>
-        <span>Due:{formatDateMonthDayTime(new Date(dateDue))}</span>
-        <span>Created:{formatDateMonthDayTime(new Date(dateCreated))}</span>
-      </CardDescription>
-      <CardFooter
-        className={` flex justify-between w-full  p-0 self-end text-nowrap`}
-      >
-        <Button variant={"destructive"} onClick={() => handleDelete(id)}>
-          Remove
-        </Button>
-        <Button variant={"default"} onClick={() => handleComplete(id,is_completed)}>
-          Complete
-        </Button>
-      </CardFooter>
+    <Card
+      className={clsx(
+        `flex w-full flex-col ${badgeClassName} gap-6 p-2 text-white`,
+        is_completed ? "saturate-0" : "",
+      )}
+    >
+      <header className="flex items-center justify-between">
+        <h2
+          className={`text-h5 tracking-snug max-w-3/4 leading-tight font-bold`}
+        >
+          {title}
+        </h2>
+        <p>
+          {new Date(dateDue).toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          }).toLowerCase()}
+        </p>
+      </header>
+      {/* <p>{desc}</p> */}
+      <div className="card__footer flex justify-between items-center">
+        <span className="text-xs">
+          Created:{formatDateMonthDayTime(new Date(dateCreated))}
+        </span>
+        <div className="button__container flex gap-1">
+          <button className="p-1" onClick={() => handleDelete(id)}>
+            <Trash2 size={24} />
+          </button>
+          <button className="p-1" onClick={() => handleComplete(id, is_completed)}>
+            <Check size={24} />
+          </button>
+        </div>
+      </div>
     </Card>
   );
 }
