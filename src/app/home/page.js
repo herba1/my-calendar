@@ -8,12 +8,19 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import ListHeader from "../components/ui/listHeader";
 import { Caladea } from "next/font/google";
+import DateChanger from "../components/ui/dateChanger";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [taskState, setTaskState] = useState("loading"); // default | loading
-  const [today, setToday] = useState();
   const [date, setDate] = useState({});
+  const [time, setTime] = useState(
+    `${new Date().toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })}`,
+  );
   const [listView, setListView] = useState(false);
   const calendar = useRef();
 
@@ -41,6 +48,7 @@ export default function Home() {
     fetchTask();
   }, []);
 
+  // set calendar
   useEffect(() => {
     if (!calendar.current) return;
     if (calendar.current) {
@@ -49,11 +57,31 @@ export default function Home() {
       setDate({
         dayName: dateCal.toLocaleDateString("en-US", { weekday: "long" }), // "Monday"
         monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
+        year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
         dayNumber: dateCal.getDate(), // 21
       });
-      console.log(date);
     }
   }, []);
+
+  // time clock setter
+  useEffect(() => {
+    function newTime() {
+      setTime(
+        `${new Date().toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })}`,
+      );
+      console.log(time);
+    }
+    let id = setInterval(() => {
+      newTime();
+    }, 1000);
+    return () => {
+      clearInterval(id);
+    };
+  });
 
   const handleTaskChange = () => {
     fetchTask();
@@ -82,39 +110,36 @@ export default function Home() {
       ...extra,
     };
   });
-  console.log(calendarTask);
 
   function changeDay(dateObject) {
-    console.log(dateObject);
     const cal = calendar.current.getApi();
     cal.incrementDate(dateObject);
     const dateCal = new Date(cal.getDate());
     setDate({
       dayName: dateCal.toLocaleDateString("en-US", { weekday: "long" }), // "Monday"
       monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
+      year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
       dayNumber: dateCal.getDate(), // 21
     });
-    console.log(date);
+  }
+
+  function changeDayToday() {
+    const cal = calendar.current.getApi();
+    cal.today();
+    const dateCal = new Date(cal.getDate());
+    setDate({
+      dayName: dateCal.toLocaleDateString("en-US", { weekday: "long" }), // "Monday"
+      monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
+      year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
+      dayNumber: dateCal.getDate(), // 21
+    });
   }
 
   return (
     <div className="relative mb-16">
       {/* this needs date */}
-      <ListHeader className={`py-4`} />
-      <button
-        onClick={() => {
-          changeDay({ day: 1 });
-        }}
-      >
-        increment
-      </button>
-      <button
-        onClick={() => {
-          changeDay({ day: -1 });
-        }}
-      >
-        decrement
-      </button>
+      <ListHeader date={date} time={time} className={`py-4`} />
+      <DateChanger changeDay={changeDay} changeDayToday={changeDayToday} date={date} />
       <div className="bg-background-light/70 fixed bottom-0 z-10 w-full rounded-t-md shadow-2xs backdrop-blur-xs">
         <TextAreaForm
           tasks={tasks}

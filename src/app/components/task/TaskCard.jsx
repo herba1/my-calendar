@@ -33,7 +33,6 @@ export default function TaskCard({
   } else {
     badgeClassName = " bg-yellow-500 ";
   }
-  console.log(dateDue);
 
   return (
     <Card
