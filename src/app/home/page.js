@@ -9,10 +9,12 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import ListHeader from "../components/ui/listHeader";
 import { Caladea } from "next/font/google";
 import DateChanger from "../components/ui/dateChanger";
+import NavMobile from "../components/NavMobile";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [taskState, setTaskState] = useState("loading"); // default | loading
+  const [isToday, setIsToday] = useState(true);
   const [date, setDate] = useState({});
   const [time, setTime] = useState(
     `${new Date().toLocaleTimeString("en-US", {
@@ -21,7 +23,7 @@ export default function Home() {
       hour12: true,
     })}`,
   );
-  const [listView, setListView] = useState(false);
+  const [altView, setAltView] = useState(false);
   const calendar = useRef();
 
   function setTaskStateProp(newState = "default") {
@@ -59,6 +61,16 @@ export default function Home() {
         monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
         year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
         dayNumber: dateCal.getDate(), // 21
+        today: dateCal.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        }),
+        currentDate: dateCal.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        }),
       });
     }
   }, []);
@@ -82,6 +94,12 @@ export default function Home() {
       clearInterval(id);
     };
   });
+
+  useEffect(() => {
+    if (date.today == date.currentDate) {
+      setIsToday(true);
+    } else setIsToday(false);
+  }, [date]);
 
   const handleTaskChange = () => {
     fetchTask();
@@ -111,15 +129,33 @@ export default function Home() {
     };
   });
 
+  const dayTask = tasks.filter((task) => {
+    console.log(task);
+    let extra = {};
+    const curTaskDate = new Date(task.due_at).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+    return curTaskDate == date.currentDate;
+  });
+  console.log(dayTask);
+
   function changeDay(dateObject) {
     const cal = calendar.current.getApi();
     cal.incrementDate(dateObject);
     const dateCal = new Date(cal.getDate());
     setDate({
+      ...date,
       dayName: dateCal.toLocaleDateString("en-US", { weekday: "long" }), // "Monday"
       monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
       year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
       dayNumber: dateCal.getDate(), // 21
+      currentDate: dateCal.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      }),
     });
   }
 
@@ -128,44 +164,62 @@ export default function Home() {
     cal.today();
     const dateCal = new Date(cal.getDate());
     setDate({
+      ...date,
       dayName: dateCal.toLocaleDateString("en-US", { weekday: "long" }), // "Monday"
       monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
       year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
       dayNumber: dateCal.getDate(), // 21
+      currentDate: dateCal.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      }),
     });
   }
 
   return (
-    <div className="relative mb-16">
+    <div className="relative h-svh max-h-fit min-h-svh gap-4 lg:grid lg:grid-cols-12 lg:grid-rows-2 lg:pt-16">
+      <NavMobile
+        className={`lg:hidden`}
+        altView={altView}
+        setAltView={setAltView}
+      />
       {/* this needs date */}
-      <ListHeader date={date} time={time} className={`py-4`} />
-      <DateChanger changeDay={changeDay} changeDayToday={changeDayToday} date={date} />
-      <div className="bg-background-light/70 fixed bottom-0 z-10 w-full rounded-t-md shadow-2xs backdrop-blur-xs">
-        <TextAreaForm
-          tasks={tasks}
-          setTaskState={setTaskState}
-          taskState={taskState}
+      {/* <DateChanger changeDay={changeDay} changeDayToday={changeDayToday} date={date} /> */}
+      <div
+        className={`row-span-full ${!altView ? "" : "hidden lg:inline-block"} lg:bg-background-light relative col-span-3 col-start-3 self-stretch rounded-md`}
+      >
+        <ListHeader
+          taskSize={dayTask.length}
+          date={date}
+          time={time}
+          className={`sticky top-0 py-4`}
+        />
+        <TaskCards
           handleTaskChange={handleTaskChange}
-          setTaskStateProp={setTaskStateProp}
-        ></TextAreaForm>
+          tasks={dayTask}
+          taskState={taskState}
+          setTaskState={setTaskState}
+        ></TaskCards>
       </div>
-      <TaskCards
-        handleTaskChange={handleTaskChange}
-        tasks={tasks}
-        taskState={taskState}
-        setTaskState={setTaskState}
-      ></TaskCards>
-      <div className="flex items-center justify-center">
-        <div className="h-full w-full">
+      <div
+        className={`row-span-full h-4/5 lg:h-full lg:max-h-full lg:flex-col lg:max-w-full ${altView ? "" : "hidden lg:flex"} bg-background-light col-span-5 rounded-md p-2`}
+      >
+        <DateChanger
+          changeDay={changeDay}
+          changeDayToday={changeDayToday}
+          date={date}
+          className={`m-2 hidden lg:flex`}
+          isToday={isToday}
+        />
+        <div className="h-full max-h-full w-full">
           <FullCalendar
             ref={calendar}
             plugins={[dayGridPlugin, timeGridPlugin]}
+            dayMaxEvents={2}
             initialView="dayGridMonth"
-            headerToolbar={{
-              start: "today prev,next",
-              center: "title",
-              right: "dayGridMonth",
-            }}
+            height={"100%"}
+            headerToolbar={false}
             weekends={true}
             events={calendarTask}
             eventClick={(e) => {
@@ -174,7 +228,24 @@ export default function Home() {
             nowIndicator={true}
             scrollTime={"08:00:00"}
           />
+          <div className="h-50 lg:hidden"></div>
         </div>
+      </div>
+      <div className="bg-background-light/90 fixed bottom-0 z-10 col-span-8 col-start-3 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs lg:static lg:mb-12 lg:inline-block">
+        <DateChanger
+          changeDay={changeDay}
+          changeDayToday={changeDayToday}
+          date={date}
+          className={`m-2 lg:hidden`}
+          isToday={isToday}
+        />
+        <TextAreaForm
+          tasks={tasks}
+          setTaskState={setTaskState}
+          taskState={taskState}
+          handleTaskChange={handleTaskChange}
+          setTaskStateProp={setTaskStateProp}
+        ></TextAreaForm>
       </div>
     </div>
   );

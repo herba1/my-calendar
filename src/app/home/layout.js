@@ -13,7 +13,6 @@ export default function Layout({ children }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <NavMobile />
         <div className={` ${dmSans.className}`}>{children}</div>
       </SidebarInset>
     </SidebarProvider>

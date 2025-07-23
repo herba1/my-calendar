@@ -18,7 +18,7 @@
   --tracking-snug: -0.05em;
   --tracking-normal: 0em;
 
-  --color-background-light: rgb(230,230,230);
+  --color-background-light: rgb(240,240,240);
 }
 
 @theme inline {
@@ -139,4 +139,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* FullCalendar sticky header */
+.fc-col-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

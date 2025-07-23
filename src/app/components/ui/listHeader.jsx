@@ -1,4 +1,4 @@
-export default function ListHeader({ className,date,time }) {
+export default function ListHeader({ className,date,time,taskSize }) {
   console.log(date);
   return (
     <div className={`relative container flex flex-col gap-2 px-2 leading-none ${className}`}>
@@ -9,8 +9,9 @@ export default function ListHeader({ className,date,time }) {
       </div>
       <div className="flex items-end justify-between">
         <p className="text-h4 tracking-tight">{date.monthName}</p>
-        <p className="text-base">1 Task</p>
+        <p className="text-base">{taskSize?`${taskSize} Task`:`No Task`}</p>
       </div>
+      <div className="h-2 bg-background-light rounded-sm my-2"></div>
     </div>
   );
 }

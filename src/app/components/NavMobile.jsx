@@ -1,21 +1,33 @@
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { LayoutList } from "lucide-react";
+import { Calendar, LayoutList } from "lucide-react";
 import Layout from "../home/layout";
 
-export default function NavMobile({className}) {
+export default function NavMobile({ className, altView, setAltView }) {
   return (
-    <nav className={`flex justify-between sticky top-0 left-0 right-0 p-2 bg-white/80 backdrop-blur-md z-10 ${className}`}>
-      <SidebarTrigger  className={` py-2`} />
-      <CalendarTrigger className={` py-2`} />
+    <nav
+      className={`sticky top-0 right-0 left-0 z-10 flex justify-between bg-white/80 p-2 backdrop-blur-md ${className}`}
+    >
+      <SidebarTrigger className={`py-2`} />
+      <ViewTrigger
+        altView={altView}
+        setAltView={setAltView}
+        className={`py-2`}
+      />
     </nav>
   );
 }
 
-
-function CalendarTrigger({className, props}) {
+function ViewTrigger({ className, props, altView, setAltView }) {
   return (
-    <button type="button" className={`${className}`} {...props}  >
-      <LayoutList size={24} />
+    <button
+      onClick={() => {
+        setAltView(!altView);
+      }}
+      type="button"
+      className={`${className}`}
+      {...props}
+    >
+      {altView ? <LayoutList size={24} /> : <Calendar size={24} />}
     </button>
   );
 }

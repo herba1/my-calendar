@@ -50,8 +50,15 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
     }
   }
 
+  let sortedTask = [...tasks].sort((a,b)=>{
+    return new Date(a.due_at) - new Date(b.due_at) 
+  })
+
+  sortedTask = sortedTask.sort((a,b)=>{
+    return a.is_completed - b.is_completed;
+  })
   // create my task list to render
-  let tasksCards = tasks.map((task) => {
+  let tasksCards = sortedTask.map((task) => {
     return (
       <TaskCard
         handleDelete={handleDelete}
@@ -68,6 +75,7 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
       ></TaskCard>
     );
   });
+
 
   //  delete function
   async function handleDelete(taskId) {
@@ -90,10 +98,10 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
   }
 
   return (
-    <div className={`cards-container gap-4 flex flex-col justify-center items-center p-2  `}>
+    <div className={`cards-container gap-4 flex flex-col justify-center items-center p-2   `}>
       {/* <Button onClick={handleSubmit}>submit</Button> */}
       {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>}
-      {tasksCards}
+      {tasksCards.length?tasksCards:'No task here... try making one!'}
     </div>
   );
 }
