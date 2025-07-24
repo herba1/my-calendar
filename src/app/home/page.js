@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import ListHeader from "../components/ui/listHeader";
 import { Caladea } from "next/font/google";
@@ -159,6 +160,25 @@ export default function Home() {
     });
   }
 
+  function changeDayTo(dateObject) {
+    const cal = calendar.current.getApi();
+    cal.gotoDate(dateObject);
+    const dateCal = new Date(cal.getDate());
+    setDate({
+      ...date,
+      dayName: dateCal.toLocaleDateString("en-US", { weekday: "long" }), // "Monday"
+      monthName: dateCal.toLocaleDateString("en-US", { month: "long" }), // "July"
+      year: dateCal.toLocaleDateString("en-US", { year: "numeric" }), // "July"
+      dayNumber: dateCal.getDate(), // 21
+      currentDate: dateCal.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      }),
+    });
+    setAltView(false);
+  }
+
   function changeDayToday() {
     const cal = calendar.current.getApi();
     cal.today();
@@ -178,7 +198,7 @@ export default function Home() {
   }
 
   return (
-    <div className="relative h-svh max-h-fit min-h-svh gap-4 lg:grid lg:grid-cols-12 lg:grid-rows-2 lg:pt-16">
+    <div className="relative h-svh max-h-fit min-h-svh gap-4 lg:mx-auto lg:grid lg:max-w-6xl lg:grid-cols-6 lg:grid-rows-2 lg:px-4 lg:pt-16">
       <NavMobile
         className={`lg:hidden`}
         altView={altView}
@@ -187,13 +207,13 @@ export default function Home() {
       {/* this needs date */}
       {/* <DateChanger changeDay={changeDay} changeDayToday={changeDayToday} date={date} /> */}
       <div
-        className={`row-span-full ${!altView ? "" : "hidden lg:inline-block"} lg:bg-background-light relative col-span-3 col-start-3 self-stretch rounded-md`}
+        className={`row-span-full ${!altView ? "" : "hidden lg:block"} lg:bg-background-light scroll relative col-span-2 w-full rounded-md lg:self-stretch lg:overflow-y-auto`}
       >
         <ListHeader
           taskSize={dayTask.length}
           date={date}
           time={time}
-          className={`sticky top-0 py-4`}
+          className={`lg:bg-background-light/90 w-full rounded-md border-b-2 border-black/10 py-4 backdrop-blur-md lg:sticky lg:top-0`}
         />
         <TaskCards
           handleTaskChange={handleTaskChange}
@@ -203,7 +223,7 @@ export default function Home() {
         ></TaskCards>
       </div>
       <div
-        className={`row-span-full h-4/5 lg:h-full lg:max-h-full lg:flex-col lg:max-w-full ${altView ? "" : "hidden lg:flex"} bg-background-light col-span-5 rounded-md p-2`}
+        className={`row-span-full h-4/5 lg:h-full lg:max-h-full lg:max-w-full lg:flex-col ${altView ? "" : "hidden lg:flex"} lg:bg-background-light col-span-4 rounded-md p-2`}
       >
         <DateChanger
           changeDay={changeDay}
@@ -215,15 +235,23 @@ export default function Home() {
         <div className="h-full max-h-full w-full">
           <FullCalendar
             ref={calendar}
-            plugins={[dayGridPlugin, timeGridPlugin]}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             dayMaxEvents={2}
             initialView="dayGridMonth"
             height={"100%"}
             headerToolbar={false}
             weekends={true}
             events={calendarTask}
-            eventClick={(e) => {
-              console.log(e.event);
+            dateClick={(e) => {
+              changeDayTo(e.date);
+            }}
+            dayCellClassNames={(info) => {
+              const cellDate = info.date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+              });
+              return cellDate === date.currentDate ? "fc-day-selected" : "";
             }}
             nowIndicator={true}
             scrollTime={"08:00:00"}
@@ -231,7 +259,7 @@ export default function Home() {
           <div className="h-50 lg:hidden"></div>
         </div>
       </div>
-      <div className="bg-background-light/90 fixed bottom-0 z-10 col-span-8 col-start-3 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs lg:static lg:mb-12 lg:inline-block">
+      <div className="bg-background-light/90 fixed bottom-0 z-10 col-span-6 col-start-0 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs lg:static lg:mb-12 lg:inline-block lg:w-full lg:rounded-md">
         <DateChanger
           changeDay={changeDay}
           changeDayToday={changeDayToday}

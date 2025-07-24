@@ -61,10 +61,10 @@ export default function TaskCard({
           Created:{formatDateMonthDayTime(new Date(dateCreated))}
         </span>
         <div className="button__container flex gap-1">
-          <button className="p-1" onClick={() => handleDelete(id)}>
+          <button className=" touch-manipulation p-1" onClick={() => handleDelete(id)}>
             <Trash2 size={24} />
           </button>
-          <button className="p-1" onClick={() => handleComplete(id, is_completed)}>
+          <button className=" touch-manipulation p-1" onClick={() => handleComplete(id, is_completed)}>
             <Check size={24} />
           </button>
         </div>

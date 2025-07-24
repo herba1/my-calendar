@@ -98,10 +98,10 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
   }
 
   return (
-    <div className={`cards-container gap-4 flex flex-col justify-center items-center p-2   `}>
+    <div className={`cards-container gap-4 flex flex-col justify-center items-center p-2 *:last:mb-64 lg:*:last:mb-0  `}>
       {/* <Button onClick={handleSubmit}>submit</Button> */}
-      {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>}
-      {tasksCards.length?tasksCards:'No task here... try making one!'}
+      {/* {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>} */}
+      {tasksCards.length?tasksCards:<span className="text-black/60 my-32  h-full inline-block">No task here... try making one!</span>}
     </div>
   );
 }

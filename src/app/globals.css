@@ -18,7 +18,7 @@
   --tracking-snug: -0.05em;
   --tracking-normal: 0em;
 
-  --color-background-light: rgb(240,240,240);
+  --color-background-light: rgb(245,245,245);
 }
 
 @theme inline {
@@ -141,11 +141,33 @@
   }
 }
 
-/* FullCalendar sticky header */
+/* FullCalendar styling */
 .fc-col-header-row {
   position: sticky;
   top: 0;
   z-index: 10;
   background: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendar date hover effects */
+.fc-daygrid-day:hover {
+  background-color: oklch(0.97 0 0);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.fc-daygrid-day-frame:hover {
+  background-color: oklch(0.94 0 0);
+}
+
+/* Selected/current viewed date styling */
+.fc-day-selected {
+  /* background-color: oklch(0.92 0.08 240) !important; */
+  border: 2px solid oklch(0% 0 0) !important;
+}
+
+.fc-day-selected .fc-daygrid-day-number {
+  color: oklch(0% 0 0);
+  font-weight: bold;
 }

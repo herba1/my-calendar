@@ -4,7 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/app/utils/supabase/server";
 import { userAgent } from "next/server";
 
-async function getGemini(message, tasks, uid) {
+async function getGemini(message, tasks, uid,currentDateTime) {
   try {
     // console.log("getGemini");
     // console.log(tasks);
@@ -12,7 +12,7 @@ async function getGemini(message, tasks, uid) {
       apiKey: process.env.GEMINI_API_KEY,
     });
     const config = {
-      maxOutputTokens: 1000,
+      maxOutputTokens: 2000,
       responseMimeType: "application/json",
       systemInstruction: [
         {
@@ -33,7 +33,25 @@ async function getGemini(message, tasks, uid) {
   
   At the TOP of the JSON make sure you add wether a DELETE method, or POST method, or PUT method based on language and like so method:method based on language you can assume most of the time it will be POST, if no task is found make an Error key value pair with explanation of not found
   make sure all responses even if 1 item(TASK/object) is inside an array, however each task shoudl but its own object,
-  todays date is ${new Date()} for reference,
+  Current date/time: ${currentDateTime} for reference,
+
+SCHEDULING RULES:
+- AVOID overlapping due_at times unless user explicitly requests overlaps
+- Prefer scheduling tasks in hour or half-hour slots (e.g., 9:00 AM, 9:30 AM, 10:00 AM)
+- When scheduling multiple tasks, spread them across available time slots
+- Check existing tasks in currentTask list to find free time slots
+- If no specific time mentioned, schedule for TODAY within reasonable business hours (9 AM - 6 PM)
+- Default to scheduling tasks for today unless user specifies future dates
+- For urgent/high priority tasks: schedule sooner, medium priority: within normal hours, low priority: can be later
+- Only overlap times if user says "at the same time", "together with", "during", or similar explicit language
+
+TASK QUALITY RULES:
+- Create descriptive, actionable titles (not just "meeting" but "Team standup meeting with marketing")
+- Include context in descriptions when available (location, attendees, purpose, etc.)
+- Use proper capitalization for titles (Title Case)
+- Infer reasonable priorities: urgent words (ASAP, urgent, important) = high, casual words (maybe, eventually) = low
+- Add relevant tags based on context (work, personal, health, shopping, etc.)
+- For recurring language ("every day", "weekly"), set is_recurring: true
   For delete or post figure out witch tasks form currentTask list is relevant and provide the wanted method along with the task_id, for post include the fields to be updated, return NO task_id for new task
   When responding what i mean by array is that the tasks and methods are within 1 arry so every response no matter will be [{task and methods here}]
   like this :[{//task and method here},{...repeat}],
@@ -121,7 +139,7 @@ export async function POST(request) {
           console.log("Token Limit hit");
           return Response.json(
             { message: "Token limit hit for today" },
-            { status: 400, headers: { "Content-Type": "application/json" } }
+            { status: 400, headers: { "Content-Type": "application/json" } },
           );
         }
         // else increment token usage
@@ -137,17 +155,17 @@ export async function POST(request) {
     }
     const body = await request.json();
     // setup for any ai provider
-    const data = await getGemini(body.message, body.tasks, uid);
+    const data = await getGemini(body.message, body.tasks, uid, body.currentDateTime);
     const res = await parseTask(data);
     return Response.json(
       { message: "Succesfully AI Processed " },
-      { status: 201, headers: { "Content-Type": "application/json" } }
+      { status: 201, headers: { "Content-Type": "application/json" } },
     );
   } catch (e) {
     console.error(e);
     return Response.json(
       { error: "Error getting AI provider" },
-      { status: 501 }
+      { status: 501 },
     );
   }
 }
@@ -235,7 +253,7 @@ async function parseTask(text) {
     }
     return Response.json(
       { message: "Processed Changes" },
-      { status: 201, headers: { "Content-Type": "application/json" } }
+      { status: 201, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
     console.error(`Error parsing new tasks: ${error}`);

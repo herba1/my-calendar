@@ -46,6 +46,7 @@ export default function TextAreaForm({
           message: input,
           // for now im sending entire tasks
           tasks: tasks,
+          currentDateTime: `${new Date().toLocaleString()} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`,
         }),
       });
       const data = await response.json();
