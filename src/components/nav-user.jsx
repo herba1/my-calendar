@@ -115,11 +115,11 @@ export function NavUser() {
             ) : (
               <DropdownMenuItem>
                 <Link
-                  href={"/login"}
+                  href={"#"}
                   className={`flex w-full items-center justify-start gap-2`}
                 >
                   <LogIn />
-                  Log in its free
+                  Login or Sign Up 
                 </Link>
               </DropdownMenuItem>
             )}

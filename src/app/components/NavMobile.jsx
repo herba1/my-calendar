@@ -1,6 +1,5 @@
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Calendar, LayoutList } from "lucide-react";
-import Layout from "../home/layout";
 
 export default function NavMobile({ className, altView, setAltView }) {
   return (

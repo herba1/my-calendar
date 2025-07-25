@@ -20,15 +20,15 @@ import {
 } from "@/components/ui/sidebar"
 
 export function NavProjects({
-  projects
+  links
 }) {
   const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+      <SidebarGroupLabel>General</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
+        {links.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
               <a href={item.url}>

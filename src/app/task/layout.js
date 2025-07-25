@@ -1,7 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import NavMobile from "../components/NavMobile";
 import { DM_Sans } from "next/font/google";
+import NavMobile from "../components/NavMobile";
 
 const dmSans = DM_Sans({
   weight: "variable",
