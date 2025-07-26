@@ -4,7 +4,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') || null
-  const next = searchParams.get('next') ?? '/'
+  const next = searchParams.get('next') ?? '/onboard'
 //   console.log(token_hash);
 //   console.log(type);
 //   console.log(next);
