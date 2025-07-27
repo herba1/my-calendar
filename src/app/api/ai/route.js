@@ -8,6 +8,7 @@ async function getGemini(message, tasks, uid,currentDateTime) {
   try {
     // console.log("getGemini");
     // console.log(tasks);
+    console.log(currentDateTime);
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
@@ -16,7 +17,10 @@ async function getGemini(message, tasks, uid,currentDateTime) {
       responseMimeType: "application/json",
       systemInstruction: [
         {
-          text: `created_at timestamp with time zone null default now(),
+          text: `
+          
+  You must follow all of these guidelines and rules.
+  created_at timestamp with time zone null default now(),
   due_at timestamp with time zone null,
   title text not null default 'Unnamed Task'::text,
   description text null,
@@ -33,14 +37,14 @@ async function getGemini(message, tasks, uid,currentDateTime) {
   
   At the TOP of the JSON make sure you add wether a DELETE method, or POST method, or PUT method based on language and like so method:method based on language you can assume most of the time it will be POST, if no task is found make an Error key value pair with explanation of not found
   make sure all responses even if 1 item(TASK/object) is inside an array, however each task shoudl but its own object,
-  Current date/time: ${currentDateTime} for reference,
+  Current date/time: ${currentDateTime} for reference, if today is referenced make sure you use todays date even if its not within business hours, !Default to always make task after the current time not before unless otherwise specified
 
 SCHEDULING RULES:
 - AVOID overlapping due_at times unless user explicitly requests overlaps
 - Prefer scheduling tasks in hour or half-hour slots (e.g., 9:00 AM, 9:30 AM, 10:00 AM)
-- When scheduling multiple tasks, spread them across available time slots
+- When scheduling multiple tasks, spread them across available time slots(as in after the current date/time unless specified)
 - Check existing tasks in currentTask list to find free time slots
-- If no specific time mentioned, schedule for TODAY within reasonable business hours (9 AM - 6 PM)
+- If no specific time mentioned, schedule for TODAY within reasonable business hours (9 AM - 8 PM) or later if TODAY takes prioirty
 - Default to scheduling tasks for today unless user specifies future dates
 - For urgent/high priority tasks: schedule sooner, medium priority: within normal hours, low priority: can be later
 - Only overlap times if user says "at the same time", "together with", "during", or similar explicit language
@@ -92,27 +96,27 @@ TASK QUALITY RULES:
 export async function POST(request) {
   try {
     const supabase = await createClient();
-    // let user = await supabase.auth.getUser();
     let {
       data: { user },
       error,
     } = await supabase.auth.getUser();
-    console.log(user);
     if (!user) {
       user = await supabase.auth.signInAnonymously();
       user = user.data.user;
     }
     let uid = user.id;
     const response = await supabase.from("usage").select("*");
+    console.log(response);
     const usage = response.data[0];
     // create record if not existing
     if (!usage) {
       const { data, error } = await supabase.from("usage").insert({
         count: 1,
         timestamp: new Date().toISOString().split("T")[0],
-        limit: user.is_anonymous ? 25 : null,
+        limit: user.is_anonymous ? 25 : 50,
       });
       if (error) {
+        console.error(error)
         throw new Error("error making bucket record");
       }
       //if record exist
@@ -181,6 +185,9 @@ async function parseTask(text) {
     const uid = user.data.user.id;
 
     const tasks = await JSON.parse(text);
+    let newTask = [];
+    let deleted = 0;
+    let modified = 0;
     for (const task of tasks) {
       if (task.error) {
         console.log(error);
@@ -199,6 +206,7 @@ async function parseTask(text) {
             console.error(error);
           } else {
             console.log("success creating task");
+            newTask.push(cleanTask);
           }
         }
       } catch (error) {
@@ -220,6 +228,7 @@ async function parseTask(text) {
             console.error(error);
           } else {
             console.log(`deleted task ${cleanTask.task_id}`);
+            deleted+=1;
           }
         }
       } catch (error) {
@@ -241,6 +250,7 @@ async function parseTask(text) {
             console.error(error);
           } else {
             console.log(`deleted task ${cleanTask.task_id}`);
+            modified+=1;
           }
         }
       } catch (error) {
@@ -254,6 +264,7 @@ async function parseTask(text) {
     return Response.json(
       { message: "Processed Changes" },
       { status: 201, headers: { "Content-Type": "application/json" } },
+      { data:newTask,deleted,modified}
     );
   } catch (error) {
     console.error(`Error parsing new tasks: ${error}`);

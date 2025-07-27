@@ -11,7 +11,9 @@ import ListHeader from "../components/ui/listHeader";
 import { Caladea } from "next/font/google";
 import DateChanger from "../components/ui/dateChanger";
 import NavMobile from "../components/NavMobile";
-
+import gsap from "gsap";
+import Flip from "gsap/Flip";
+gsap.registerPlugin(Flip);
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [taskState, setTaskState] = useState("loading"); // default | loading
@@ -86,7 +88,6 @@ export default function Home() {
           hour12: true,
         })}`,
       );
-      console.log(time);
     }
     let id = setInterval(() => {
       newTime();
@@ -131,7 +132,6 @@ export default function Home() {
   });
 
   const dayTask = tasks.filter((task) => {
-    console.log(task);
     let extra = {};
     const curTaskDate = new Date(task.due_at).toLocaleDateString("en-US", {
       year: "numeric",
@@ -195,11 +195,10 @@ export default function Home() {
       }),
     });
   }
-
   return (
     <div className="relative h-svh max-h-fit min-h-svh gap-4 lg:mx-auto lg:grid lg:max-w-6xl lg:grid-cols-6 lg:grid-rows-2 lg:px-4 lg:pt-16">
       <NavMobile
-        className={`lg:hidden`}
+        className={`lg:hidden z-20`}
         altView={altView}
         setAltView={setAltView}
       />
@@ -212,9 +211,10 @@ export default function Home() {
           taskSize={dayTask.length}
           date={date}
           time={time}
-          className={`lg:bg-background-light/90 w-full rounded-md border-b-2 border-black/10 py-4 backdrop-blur-md lg:sticky lg:top-0`}
+          className={`lg:bg-background-light/90 z-10 w-full rounded-md border-b-2 border-black/10 py-4 backdrop-blur-md lg:sticky lg:top-0`}
         />
         <TaskCards
+          date={date}
           handleTaskChange={handleTaskChange}
           tasks={dayTask}
           taskState={taskState}
@@ -263,7 +263,7 @@ export default function Home() {
           changeDay={changeDay}
           changeDayToday={changeDayToday}
           date={date}
-          className={` px-2 lg:hidden`}
+          className={`px-2 lg:hidden`}
           isToday={isToday}
         />
         <TextAreaForm

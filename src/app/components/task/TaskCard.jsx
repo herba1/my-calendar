@@ -14,6 +14,7 @@ import formatDateMonthDayTime from "@/app/lib/dateString";
 import { Check, Trash2 } from "lucide-react";
 
 export default function TaskCard({
+  className = "",
   priority = "medium",
   title = "Some Task",
   desc = "No description",
@@ -37,7 +38,7 @@ export default function TaskCard({
   return (
     <Card
       className={clsx(
-        `flex w-full flex-col ${badgeClassName} gap-6 p-2 text-white`,
+        `flex w-full flex-col ${badgeClassName} gap-6 p-2 text-white ${className}`,
         is_completed ? "saturate-0" : "",
       )}
     >

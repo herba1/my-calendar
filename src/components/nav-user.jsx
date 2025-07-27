@@ -34,10 +34,10 @@ import { logout } from "@/app/login/actions";
 
 export function NavUser({ user }) {
   const { isMobile } = useSidebar();
-  // const { user, isAuthenticated } = useAuth();
-  if (user) {
-    console.log(user);
+  if(user?.is_anonymous){
+    user = null;
   }
+
 
   return (
     <SidebarMenu>

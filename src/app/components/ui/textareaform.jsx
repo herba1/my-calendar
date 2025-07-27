@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
-import { useState } from "react";
+import { useReducer, useState, useRef} from "react";
 
 export default function TextAreaForm({
   handleTaskChange,
@@ -9,10 +9,11 @@ export default function TextAreaForm({
   setTaskStateProp,
   tasks,
   className,
-  children
+  children,
 }) {
   const [input, setInput] = useState("");
   const [inputSize, setInputSize] = useState(0);
+  const textArea = useRef(null);
 
   function handleInput(e) {
     setInput(e.target.value);
@@ -28,14 +29,14 @@ export default function TextAreaForm({
     e.preventDefault();
     setTaskStateProp("loading");
     // for now im sending entire tasks not relevant task
-    let relevantTask = tasks.map(task=>{
-      return{
-        task_id:task.task_id,
-        created_at:task.created_at,
-        title:task.title,
-        due_at:task.due_at,
-      }
-    })
+    let relevantTask = tasks.map((task) => {
+      return {
+        task_id: task.task_id,
+        created_at: task.created_at,
+        title: task.title,
+        due_at: task.due_at,
+      };
+    });
     try {
       const response = await fetch("../../api/ai", {
         method: "POST",
@@ -64,24 +65,32 @@ export default function TextAreaForm({
   }
 
   return (
-    <form action={"#"} onSubmit={handleSubmit} className={` w-full p-2  ${className} `}>
+    <form
+      action={"#"}
+      onSubmit={handleSubmit}
+      className={`w-full p-2 ${className} `}
+    >
       <div
-        className={`transition-all bg-white focus-within:ring-2 border-2 rounded-lg p-4`}
+        onClick={() => {
+          textArea.current.focus();
+        }}
+        className={`rounded-lg border-2 bg-white p-2 transition-all focus-within:ring-2 hover:cursor-text lg:p-4`}
       >
         <Textarea
+          ref={textArea}
           placeholder={
             "Tell me about your plans here (appointments, task, important dates). "
           }
-          className={`border-none outline-none shadow-none focus-visible:ring-0 resize-none max-h-80 scroll`}
+          className={`scroll max-h-80 resize-none border-none shadow-none outline-none focus-visible:ring-0`}
           maxLength="500"
           value={input}
           onChange={handleInput}
           disabled={taskState === "loading"}
           onKeyDown={handleKeyDown}
         ></Textarea>
-        <div className="bottom flex justify-between items-center">
+        <div className="bottom flex items-center justify-between">
           <div>
-            <span className="text-xs align-text-bottom text-black/50">
+            <span className="align-text-bottom text-xs text-black/50">
               {inputSize}/500
             </span>
           </div>

@@ -12,8 +12,6 @@ const dmSans = DM_Sans({
 export default async function Layout({ children }) {
   const supabase = await createClient();
   const {data:{user},error} = await supabase.auth.getUser();
-  console.log(user);
-
   return (
     <SidebarProvider>
       <AppSidebar user={user} />

@@ -1,13 +1,42 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import TaskCard from "./TaskCard";
 import { Button } from "../ui/button";
 import TaskCardSkeleton from "../skeleton/TaskCardSkeleton";
-import { TaskCardsSkeleton } from "../skeleton/TaskCardSkeleton"
+import { TaskCardsSkeleton } from "../skeleton/TaskCardSkeleton";
+import gsap from "gsap";
+import { Flip } from "gsap/Flip";
+import { useGSAP } from "@gsap/react";
+import { useRef } from "react";
+import { CountTokensResponse } from "@google/genai";
 
-export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskStateProp }) {
+gsap.registerPlugin(Flip);
 
+export default function TaskCards({ tasks, handleTaskChange, date }) {
   // CREATE A NEW TASK
+  const container = useRef(null);
+  const state = useRef(null);
+  const [isFlip, setIsFlip] = useState(false);
+  const [lastDate, setLastDate] = useState(false);
+
+  const { contextSafe } = useGSAP(
+    () => {
+      if (tasks.length > 0 && lastDate != date) {
+        Flip.killFlipsOf(".taskCard");
+        gsap.set(".taskCard", { clearProps: "all" });
+        let tween = gsap.from(".taskCard", {
+          opacity: 0,
+          scale: 0.9,
+          yPercent: -70,
+          duration: 0.5,
+          ease: "power4.out",
+          stagger: 0.07,
+          onComplete: () => setLastDate(date),
+        });
+      }
+    },
+    { scope: container.current, dependencies: [date, tasks] },
+  );
   async function handleSubmit(e) {
     try {
       const response = await fetch("../../api/task", {
@@ -29,8 +58,10 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
   }
 
   // PUT task to update send object of updated tast and task id
-  async function handleComplete(task_id, is_completed) {
+  const handleComplete = contextSafe(async (task_id, is_completed) => {
     try {
+      state.current = Flip.getState(".taskCard");
+      setIsFlip(true);
       const response = await fetch("../../api/task", {
         method: "PUT",
         headers: {
@@ -48,38 +79,14 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
     } catch (error) {
       console.error(error);
     }
-  }
-
-  let sortedTask = [...tasks].sort((a,b)=>{
-    return new Date(a.due_at) - new Date(b.due_at) 
-  })
-
-  sortedTask = sortedTask.sort((a,b)=>{
-    return a.is_completed - b.is_completed;
-  })
-  // create my task list to render
-  let tasksCards = sortedTask.map((task) => {
-    return (
-      <TaskCard
-        handleDelete={handleDelete}
-        handleComplete={handleComplete}
-        is_completed={task.is_completed}
-        priority={task.priority}
-        key={task.task_id}
-        title={task.title}
-        desc={task.description}
-        dateDue={task.due_at}
-        dateCreated={task.created_at}
-        tags={task.tags}
-        id={task.task_id}
-      ></TaskCard>
-    );
   });
 
-
-  //  delete function
-  async function handleDelete(taskId) {
+  //  DELETE function
+  const handleDelete = contextSafe(async (taskId) => {
     try {
+      // flip setup
+      state.current = Flip.getState(".taskCard");
+      setIsFlip(true);
       const response = await fetch("../../api/task", {
         method: "DELETE",
         headers: {
@@ -95,13 +102,60 @@ export default function TaskCards({ tasks, handleTaskChange, taskState, setTaskS
     } catch (e) {
       console.error(`${e}`);
     }
-  }
+  });
+
+  useLayoutEffect(() => {
+    if (isFlip) {
+      Flip.from(state.current, {
+        ease: "power4.out",
+        onComplete: () => {
+          setIsFlip(false);
+        },
+      });
+    }
+  }, [tasks]);
+
+  let sortedTask = [...tasks].sort((a, b) => {
+    return new Date(a.due_at) - new Date(b.due_at);
+  });
+
+  sortedTask = sortedTask.sort((a, b) => {
+    return a.is_completed - b.is_completed;
+  });
+  // create my task list to render
+  let tasksCards = sortedTask.map((task) => {
+    return (
+      <TaskCard
+        className="taskCard"
+        handleDelete={handleDelete}
+        handleComplete={handleComplete}
+        is_completed={task.is_completed}
+        priority={task.priority}
+        key={task.task_id}
+        title={task.title}
+        desc={task.description}
+        dateDue={task.due_at}
+        dateCreated={task.created_at}
+        tags={task.tags}
+        id={task.task_id}
+      ></TaskCard>
+    );
+  });
 
   return (
-    <div className={`cards-container gap-4 flex flex-col justify-center items-center p-2 *:last:mb-64 lg:*:last:mb-0  `}>
+    <div
+      ref={container}
+      className={`cards-container flex flex-col items-center justify-center gap-4 p-2 *:last:mb-64 lg:*:last:mb-0`}
+    >
       {/* <Button onClick={handleSubmit}>submit</Button> */}
       {/* {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>} */}
-      {tasksCards.length?tasksCards:<span className="text-black/60 my-32  h-full inline-block">No task here... try making one!</span>}
+      {tasksCards.length ? (
+        tasksCards
+      ) : (
+        <span className="my-32 inline-block h-full text-black/60">
+          No task here... try making one!
+        </span>
+      )}
     </div>
   );
 }
