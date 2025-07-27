@@ -20,27 +20,9 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
 
-
 export default function LoginPage() {
   return (
     <div className="relative flex h-svh max-w-full items-center justify-center">
-      <nav className="absolute top-0 left-1/2 mt-4 -translate-x-1/2">
-        <Link href={"/task"} className="relative h-full w-full">
-          <Image
-            width={128}
-            height={1}
-            src={`/essence_logo.svg`}
-            alt="img"
-          ></Image>
-          <Image
-            className="absolute top-0 left-0 opacity-40 blur-xs transition-all duration-500 hover:opacity-50 hover:blur-sm"
-            src={`/essence_logo.svg`}
-            alt="img"
-            width={128}
-            height={1}
-          ></Image>
-        </Link>
-      </nav>
       <Card className={`w-full max-w-sm`}>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -51,8 +33,19 @@ export default function LoginPage() {
 
         <CardContent className={`flex flex-col gap-6`}>
           <form>
-            <Button className="w-full" formAction={signInWithGoogle}>
-              Login with Google
+            <Button
+              variant={"outline"}
+              className="w-full flex justify-center items-center"
+              formAction={signInWithGoogle}
+            >
+              <Image
+                width={70}
+                height={70}
+                src={`/g.png`}
+                alt="Google Icon"
+                className="w-4.5 select-none"
+              ></Image>
+              <span>Login with Google </span>
             </Button>
           </form>
           <div className="flex w-full max-w-full items-center justify-center gap-2">
@@ -77,21 +70,19 @@ export default function LoginPage() {
                 className={`w-full`}
                 formAction={loginMagicLink}
               >
-                Log in
+               Continue with Email 
               </Button>
             </div>
             {/* <Button formAction={signup}>Sign up</Button> */}
           </form>
-          <form>
-            <Button variant={"destructive"} formAction={logout}>
-              Log Out
-            </Button>
-          </form>
         </CardContent>
         <CardFooter>
           <div className="flex w-full flex-col items-center gap-2">
-            <Link href={`#`} className="text-sm opacity-70 hover:underline">
-              Need an account? Sign up{" "}
+            <Link
+              href={`/task`}
+              className="text-sm opacity-70 hover:underline"
+            >
+              Try it now
             </Link>
           </div>
         </CardFooter>

@@ -29,11 +29,15 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
+import { Button } from "@/app/components/ui/button";
+import { logout } from "@/app/login/actions";
 
-export function NavUser() {
+export function NavUser({ user }) {
   const { isMobile } = useSidebar();
-  const { user, isAuthenticated } = useAuth();
-  console.log(user);
+  // const { user, isAuthenticated } = useAuth();
+  if (user) {
+    console.log(user);
+  }
 
   return (
     <SidebarMenu>
@@ -44,23 +48,28 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg flex justify-center items-center ">
-                {isAuthenticated ? (
+              <Avatar className="flex h-8 w-8 items-center justify-center rounded-lg">
+                {user ? (
                   <>
                     <AvatarImage
                       src={user.user_metadata.avatar_url}
                       alt={user.user_metadata.name}
                     />
-                    <AvatarFallback className="rounded-lg">
-                      {user.user_metadata.name.split(" ")[0][0] +
-                        user.user_metadata.name.split(" ")[1][0]}
-                    </AvatarFallback>
+                    {user.user_metadata.name ? (
+                      <AvatarFallback className="rounded-lg">
+                        {user.user_metadata.name[0]}
+                      </AvatarFallback>
+                    ) : (
+                      <AvatarFallback className="rounded-lg">
+                        {user.user_metadata.email[0]}
+                      </AvatarFallback>
+                    )}
                   </>
                 ) : (
                   <User stroke="black" />
                 )}
               </Avatar>
-              {isAuthenticated ? (
+              {user ? (
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
                     {user.user_metadata.name}
@@ -80,7 +89,7 @@ export function NavUser() {
             align="end"
             sideOffset={4}
           >
-            {isAuthenticated ? (
+            {user ? (
               <>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
@@ -89,11 +98,24 @@ export function NavUser() {
                         src={user.user_metadata.avatar_url}
                         alt={user.user_metadata.name}
                       />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      {user.user_metadata.name ? (
+                        <AvatarFallback className="rounded-lg">
+                          {user.user_metadata.name[0]}
+                        </AvatarFallback>
+                      ) : (
+                        <AvatarFallback className="rounded-lg">
+                          {user.user_metadata.email[0]}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">
-                        {user.user_metadata.name}
+                        {user.user_metadata.name
+                          ? user.user_metadata.name
+                          : user.user_metadata.email.slice(
+                              0,
+                              user.user_metadata.email.indexOf("@"),
+                            )}
                       </span>
                       <span className="truncate text-xs">{user.email}</span>
                     </div>
@@ -108,20 +130,28 @@ export function NavUser() {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <LogOut />
-                  Log out
+                  <form className="w-full">
+                    <Button
+                      className={`flex w-full justify-start gap-1 !no-underline`}
+                      formAction={logout}
+                      variant={"link"}
+                    >
+                      <LogOut />
+                      Log out
+                    </Button>
+                  </form>
                 </DropdownMenuItem>
               </>
             ) : (
-              <DropdownMenuItem>
-                <Link
-                  href={"#"}
-                  className={`flex w-full items-center justify-start gap-2`}
-                >
+              <Link
+                href={"/login"}
+                className={`flex h-full w-full items-center justify-start gap-2`}
+              >
+                <DropdownMenuItem className={`w-full`}>
                   <LogIn />
-                  Login or Sign Up 
-                </Link>
-              </DropdownMenuItem>
+                  Login or Sign Up
+                </DropdownMenuItem>
+              </Link>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

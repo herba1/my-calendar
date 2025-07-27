@@ -13,8 +13,21 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
 import { loginMagicLink, setUsernameInitial } from "../login/actions";
+import { createClient } from "../utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function LoginPage() {
+export default async function onbaord() {
+
+  const supabase = await createClient();
+  const {data:{user}, error} = await supabase.auth.getUser();
+  if(!user){
+    redirect('/login')
+  }
+  if(user.user_metadata.name && user.user_metadata.name.length>0){
+    redirect('/task')
+  }
+
+
   return (
     <div className="relative flex h-svh max-w-full items-center justify-center">
       <nav className="absolute top-0 left-1/2 mt-4 -translate-x-1/2">

@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect, useContext, createContext } from "react";
 import { createClient } from "../utils/supabase/client";
-const supabase = createClient();
 
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
+  const supabase = createClient();
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +14,9 @@ export function AuthProvider({ children }) {
   const isAnonymous = !!user && user.is_anonymous;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session },data }) => {
+      console.log(data);
+      console.log(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -22,8 +24,8 @@ export function AuthProvider({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("user change",event);
       setUser(session?.user ?? null);
-      console.log('auth change,',session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
@@ -33,14 +35,12 @@ export function AuthProvider({ children }) {
     user,
     loading,
     isAuthenticated,
-    isAnonymous
-  }
+    isAnonymous,
+  };
 
-  return <AuthContext.Provider value={value}>
-    {children}
-  </AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth(){
-    return useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
 }

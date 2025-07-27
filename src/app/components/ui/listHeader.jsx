@@ -1,5 +1,4 @@
 export default function ListHeader({ className,date,time,taskSize }) {
-  console.log(date);
   return (
     <div className={`relative flex flex-col gap-2 px-2 leading-none ${className}`}>
       <p className="text-body-base tracking-snug">{date.dayName}</p>

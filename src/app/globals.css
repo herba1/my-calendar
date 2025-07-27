@@ -18,7 +18,16 @@
   --tracking-snug: -0.05em;
   --tracking-normal: 0em;
 
-  --color-background-light: rgb(245,245,245);
+  /* Custom easing functions */
+  --ease-spring-gentle: cubic-bezier(0.26, 1.04, 0.54, 1);
+  --ease-spring-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-elastic-soft: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-elastic-wild: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-out-1: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-2: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-3: cubic-bezier(0, 0.55, 0.45, 1);
+
+  --color-background-light:oklch(0.985 0 0);
 }
 
 @theme inline {
@@ -86,6 +95,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  /* us9ing this elsewhere */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -164,7 +174,7 @@
 /* Selected/current viewed date styling */
 .fc-day-selected {
   /* background-color: oklch(0.92 0.08 240) !important; */
-  border: 2px solid oklch(0% 0 0) !important;
+  outline: 2px solid oklch(0% 0 0) !important;
 }
 
 .fc-day-selected .fc-daygrid-day-number {

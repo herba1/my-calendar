@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect,} from "next/navigation";
 
 // import { createClient } from '@/utils/supabase/server'
 import { createClient } from "../utils/supabase/server";
@@ -45,7 +45,7 @@ export async function loginMagicLink(formData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/error");
+  redirect("/login/confirm");
 }
 
 export async function signup(formData) {
@@ -71,12 +71,11 @@ export async function signup(formData) {
 export async function logout() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signOut();
-  if (data) {
-    console.log(data);
-  }
   if (error) {
     console.error(error);
+  redirect("/error");
   }
+  revalidatePath("/", "layout");
   redirect("/login");
 }
 

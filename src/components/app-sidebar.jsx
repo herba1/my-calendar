@@ -42,9 +42,8 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }) {
+export function AppSidebar({ user, ...props}) {
   const { open, openMobile, isOpen, isMobile } = useSidebar();
-  console.log(open);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -73,7 +72,7 @@ export function AppSidebar({ ...props }) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

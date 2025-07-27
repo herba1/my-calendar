@@ -140,7 +140,6 @@ export default function Home() {
     });
     return curTaskDate == date.currentDate;
   });
-  console.log(dayTask);
 
   function changeDay(dateObject) {
     const cal = calendar.current.getApi();
@@ -259,12 +258,12 @@ export default function Home() {
           <div className="h-50 lg:hidden"></div>
         </div>
       </div>
-      <div className="bg-background-light/90 fixed bottom-0 z-10 col-span-6 col-start-0 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs lg:static lg:mb-12 lg:inline-block lg:w-full lg:rounded-md">
+      <div className="bg-sidebar/90 fixed bottom-0 z-10 col-span-6 col-start-0 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs lg:static lg:mb-12 lg:inline-block lg:w-full lg:rounded-md">
         <DateChanger
           changeDay={changeDay}
           changeDayToday={changeDayToday}
           date={date}
-          className={`m-2 lg:hidden`}
+          className={` px-2 lg:hidden`}
           isToday={isToday}
         />
         <TextAreaForm
