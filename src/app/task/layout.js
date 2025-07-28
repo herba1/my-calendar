@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { DM_Sans } from "next/font/google";
 import NavMobile from "../components/NavMobile";
 import { createClient } from "../utils/supabase/server";
+import { Toaster } from "@/components/ui/sonner";
 
 const dmSans = DM_Sans({
   weight: "variable",
@@ -11,12 +12,16 @@ const dmSans = DM_Sans({
 
 export default async function Layout({ children }) {
   const supabase = await createClient();
-  const {data:{user},error} = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
       <SidebarInset>
-        <div className={` ${dmSans.className}`}>{children}</div>
+        <Toaster closeButton position={"top-center"} className={`max-w-3xs font-bold`} />
+        <main className={` ${dmSans.className}`}>{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -4,7 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/app/utils/supabase/server";
 import { userAgent } from "next/server";
 
-async function getGemini(message, tasks, uid,currentDateTime) {
+async function getGemini(message, tasks, uid, currentDateTime) {
   try {
     // console.log("getGemini");
     // console.log(tasks);
@@ -116,7 +116,7 @@ export async function POST(request) {
         limit: user.is_anonymous ? 25 : 50,
       });
       if (error) {
-        console.error(error)
+        console.error(error);
         throw new Error("error making bucket record");
       }
       //if record exist
@@ -159,18 +159,30 @@ export async function POST(request) {
     }
     const body = await request.json();
     // setup for any ai provider
-    const data = await getGemini(body.message, body.tasks, uid, body.currentDateTime);
-    const res = await parseTask(data);
-    return Response.json(
-      { message: "Succesfully AI Processed " },
-      { status: 201, headers: { "Content-Type": "application/json" } },
+    const data = await getGemini(
+      body.message,
+      body.tasks,
+      uid,
+      body.currentDateTime,
     );
+    const res = await parseTask(data);
+    const resData = await res.json();
+    console.log(res);
+    console.log(resData);
+    return Response.json({
+      message: "Succesfully AI Processed ",
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+      data: resData.data,
+    });
   } catch (e) {
     console.error(e);
-    return Response.json(
-      { error: "Error getting AI provider" },
-      { status: 501 },
-    );
+    return Response.json({
+      error: "Error getting AI provider",
+      status: 501,
+      headers: { "Content-Type": "application/json" },
+      data: resData.data,
+    });
   }
 }
 
@@ -228,7 +240,7 @@ async function parseTask(text) {
             console.error(error);
           } else {
             console.log(`deleted task ${cleanTask.task_id}`);
-            deleted+=1;
+            deleted += 1;
           }
         }
       } catch (error) {
@@ -250,7 +262,7 @@ async function parseTask(text) {
             console.error(error);
           } else {
             console.log(`deleted task ${cleanTask.task_id}`);
-            modified+=1;
+            modified += 1;
           }
         }
       } catch (error) {
@@ -261,11 +273,12 @@ async function parseTask(text) {
         });
       }
     }
-    return Response.json(
-      { message: "Processed Changes" },
-      { status: 201, headers: { "Content-Type": "application/json" } },
-      { data:newTask,deleted,modified}
-    );
+    return Response.json({
+      message: "Processed Changes",
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+      data: { newTask, deleted, modified },
+    });
   } catch (error) {
     console.error(`Error parsing new tasks: ${error}`);
     return Response.json({ error, message: "Server error" }, { status: 500 });

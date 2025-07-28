@@ -21,9 +21,10 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
 
   const { contextSafe } = useGSAP(
     () => {
-      if (tasks.length > 0 && lastDate != date) {
+      if (tasks.length > 0 && lastDate !== date) {
         Flip.killFlipsOf(".taskCard");
         gsap.set(".taskCard", { clearProps: "all" });
+        setLastDate(date); // Update immediately to prevent re-runs
         let tween = gsap.from(".taskCard", {
           opacity: 0,
           scale: 0.9,
@@ -31,11 +32,11 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
           duration: 0.5,
           ease: "power4.out",
           stagger: 0.07,
-          onComplete: () => setLastDate(date),
+          onComplete: () => console.log('tween done'),
         });
       }
     },
-    { scope: container.current, dependencies: [date, tasks] },
+    { scope: container.current, dependencies: [tasks, date] },
   );
   async function handleSubmit(e) {
     try {

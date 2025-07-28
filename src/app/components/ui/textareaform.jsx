@@ -1,7 +1,13 @@
 "use client";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
-import { useReducer, useState, useRef} from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import TextPlugin from "gsap/TextPlugin";
+import { useReducer, useState, useRef, use } from "react";
+import { toast } from "sonner";
+
+gsap.registerPlugin(TextPlugin);
 
 export default function TextAreaForm({
   handleTaskChange,
@@ -14,6 +20,7 @@ export default function TextAreaForm({
   const [input, setInput] = useState("");
   const [inputSize, setInputSize] = useState(0);
   const textArea = useRef(null);
+  const container = useRef(null);
 
   function handleInput(e) {
     setInput(e.target.value);
@@ -52,6 +59,11 @@ export default function TextAreaForm({
       });
       const data = await response.json();
       console.log(data);
+      let message = [];
+      if(data.data.newTask.length>0)message.push(`${data.data.newTask.length} Task Created`);
+      if(data.data.deleted)message.push(`${data.data.deleted} Task Removed `);
+      if(data.data.modified)message.push(`${data.data.modified} Task Modified`);
+      toast(message.join(', '))
       setTaskStateProp("default");
       setInput("");
       setInputSize(0);
@@ -64,8 +76,57 @@ export default function TextAreaForm({
     }
   }
 
+  const { contextSafe } = useGSAP(
+    () => {
+      let dots = container.current.querySelectorAll(".dot");
+      if (taskState === "loading") {
+        gsap.killTweensOf(".dot");
+        gsap.set(".dot", {
+          display: "inline-block",
+          yPercent: 100,
+          opacity: 0,
+          scale: 1,
+        });
+        gsap.to(".dot", {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.3,
+          ease: "power2.out",
+          stagger: 0.1,
+          onComplete: () => {
+            dots.forEach((elem, i) => {
+              gsap.to(elem, {
+                yPercent: -100,
+                scale: 1.1,
+                ease: "power2.inOut",
+                duration: 0.4,
+                repeat: -1,
+                yoyo: true,
+                delay: i * 0.1,
+              });
+            });
+          },
+        });
+      } else {
+        gsap.killTweensOf(".dot");
+        gsap.to(".dot", {
+          opacity: 0,
+          scale: 1,
+          yPercent: 0,
+          duration: 0.2,
+          ease: "power2.out",
+          onComplete: () => {
+            gsap.set(".dot", { display: "none" });
+          },
+        });
+      }
+    },
+    { scope: container.current, dependencies: [taskState] },
+  );
+
   return (
     <form
+      ref={container}
       action={"#"}
       onSubmit={handleSubmit}
       className={`w-full p-2 ${className} `}
@@ -89,10 +150,13 @@ export default function TextAreaForm({
           onKeyDown={handleKeyDown}
         ></Textarea>
         <div className="bottom flex items-center justify-between">
-          <div>
-            <span className="align-text-bottom text-xs text-black/50">
-              {inputSize}/500
-            </span>
+          <span className="align-text-bottom text-xs text-black/50">
+            {inputSize}/500
+          </span>
+          <div className="inline-block space-x-1">
+            <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-black opacity-0"></span>
+            <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-black opacity-0"></span>
+            <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-black opacity-0"></span>
           </div>
           <Button
             disabled={taskState === "loading" || inputSize == 0}

@@ -198,7 +198,7 @@ export default function Home() {
   return (
     <div className="relative h-svh max-h-fit min-h-svh gap-4 lg:mx-auto lg:grid lg:max-w-6xl lg:grid-cols-6 lg:grid-rows-2 lg:px-4 lg:pt-16">
       <NavMobile
-        className={`lg:hidden z-20`}
+        className={`z-20 lg:hidden`}
         altView={altView}
         setAltView={setAltView}
       />
@@ -222,7 +222,7 @@ export default function Home() {
         ></TaskCards>
       </div>
       <div
-        className={`row-span-full h-4/5 lg:h-full lg:max-h-full lg:max-w-full lg:flex-col ${altView ? "" : "hidden lg:flex"} lg:bg-background-light col-span-4 rounded-md p-2`}
+        className={`row-span-full h-4/5 lg:h-full lg:max-h-full lg:max-w-full lg:flex-col ${altView ? "" : "hidden lg:flex"} lg:bg-sidebar col-span-4 rounded-md p-2`}
       >
         <DateChanger
           changeDay={changeDay}
