@@ -3,9 +3,10 @@ import Link from "next/link";
 
 export default function layout({ children }) {
   return (
-    <main>
-      <nav className="absolute z-10 top-0 left-1/2 mt-4 -translate-x-1/2">
-        <Link href={"/task"} className="relative h-full w-full">
+    <div>
+      <main>{children}</main>
+      <nav className="absolute top-0 left-1/2 z-10 mt-4 -translate-x-1/2">
+        <Link href={"/task"} className="relative h-fit w-fit">
           <Image
             width={128}
             height={1}
@@ -21,7 +22,6 @@ export default function layout({ children }) {
           ></Image>
         </Link>
       </nav>
-      {children}
-    </main>
+    </div>
   );
 }

@@ -5,12 +5,19 @@ import { useGSAP } from "@gsap/react";
 import { useRef, useState } from "react";
 import { Split } from "lucide-react";
 gsap.registerPlugin(SplitText);
-export default function ListHeader({ className, date, time, taskSize }) {
+export default function ListHeader({
+  className,
+  date,
+  time,
+  taskSize,
+  taskState,
+}) {
   const container = useRef(null);
   const [isFirst, setIsFirst] = useState(true);
 
-  useGSAP( () => {
-      if (date?.dayName && isFirst && taskSize >= 0) {
+  useGSAP(
+    () => {
+      if (date?.dayName && isFirst && taskState != "loading") {
         let items = container.current.querySelectorAll(".split");
         let split = SplitText.create(items, {
           type: "lines, chars",
@@ -33,7 +40,7 @@ export default function ListHeader({ className, date, time, taskSize }) {
         setIsFirst(false);
       }
     },
-    { scope: container.current, dependencies: [date, taskSize] },
+    { scope: container.current, dependencies: [date, taskSize, taskState] },
   );
 
   return (
@@ -45,7 +52,7 @@ export default function ListHeader({ className, date, time, taskSize }) {
         {date.dayName ?? "Someday"}
       </p>
       <div className="flex items-center justify-between">
-        <h1 className="split text-h2 tracking-tight opacity-0">
+        <h1 className="split text-h3 md:text-h2 font-medium tracking-tight opacity-0">
           {date.dayNumber ?? "99"}
         </h1>
         <p className="text-h5 split tracking-tight opacity-0">
@@ -53,14 +60,14 @@ export default function ListHeader({ className, date, time, taskSize }) {
         </p>
       </div>
       <div className="flex items-end justify-between">
-        <p className="text-h4 split tracking-tight opacity-0">
+        <p className="md:text-h4 text-h5 split tracking-tight opacity-0">
           {date.monthName ?? "Months"}
         </p>
         <p className="split text-base opacity-0">
           {taskSize ? `${taskSize} Task` : `No Task`}
         </p>
       </div>
-      <div className="bg-background-light my-2 h-2 rounded-sm lg:hidden"></div>
+      {/* <div className="bg-background-light my-2 h-2 rounded-sm lg:hidden"></div> */}
     </div>
   );
 }

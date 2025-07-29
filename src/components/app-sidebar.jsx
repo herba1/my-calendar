@@ -7,6 +7,7 @@ import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -44,6 +45,7 @@ const data = {
 
 export function AppSidebar({ user, ...props}) {
   const { open, openMobile, isOpen, isMobile } = useSidebar();
+  const pathName = usePathname();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -69,7 +71,7 @@ export function AppSidebar({ user, ...props}) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain path={pathName} items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

@@ -41,7 +41,7 @@ export function NavUser({ user }) {
   }
 
   return (
-    <SettingDialog>
+    <SettingDialog user={user}>
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
@@ -125,7 +125,7 @@ export function NavUser({ user }) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DialogTrigger >
+                    <DialogTrigger className={`w-full`}>
                       <DropdownMenuItem>
                         <BadgeCheck />
                         Account Settings
@@ -147,15 +147,14 @@ export function NavUser({ user }) {
                   </DropdownMenuItem>
                 </>
               ) : (
-                <Link
-                  href={"/login"}
-                  className={`flex h-full w-full items-center justify-start gap-2`}
-                >
-                  <DropdownMenuItem className={`w-full`}>
-                    <LogIn />
-                    Login or Sign Up
-                  </DropdownMenuItem>
-                </Link>
+                <DropdownMenuItem className={`relative`}>
+                  <Link
+                    href={"/login"}
+                    className={`absolute top-0 right-0 left-0 z-10 h-full w-full`}
+                  ></Link>
+                  <LogIn />
+                  Login or Sign Up
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

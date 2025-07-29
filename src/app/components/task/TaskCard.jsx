@@ -12,8 +12,12 @@ import { Badge } from "../ui/badge";
 import clsx from "clsx";
 import formatDateMonthDayTime from "@/app/lib/dateString";
 import { Check, Trash2 } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { useRef } from "react";
 
 export default function TaskCard({
+  loading,
   className = "",
   priority = "medium",
   title = "Some Task",
@@ -26,6 +30,12 @@ export default function TaskCard({
   is_completed = false,
   tags,
 }) {
+  const container = useRef(null);
+  const { conextSafe } = useGSAP(() => {}, {
+    scope: container.current,
+    dependencies: [loading],
+  });
+
   let badgeClassName = "";
   if (priority === "low") {
     badgeClassName = " bg-green-500 ";
@@ -37,8 +47,9 @@ export default function TaskCard({
 
   return (
     <Card
+      ref={container}
       className={clsx(
-        `flex w-full flex-col ${badgeClassName} gap-6 p-2 text-white ${className}`,
+        `flex w-full flex-col ${badgeClassName} ${loading ? " animate-pulse opacity-50" : ""} gap-6 p-2 text-white ${className}`,
         is_completed ? "saturate-0" : "",
       )}
     >
@@ -49,27 +60,40 @@ export default function TaskCard({
           {title}
         </h2>
         <p>
-          {new Date(dateDue).toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-          }).toLowerCase()}
+          {new Date(dateDue)
+            .toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })
+            .toLowerCase()}
         </p>
       </header>
       {/* <p>{desc}</p> */}
-      <div className="card__footer flex justify-between items-center">
+      <footer className="card__footer flex items-center justify-between">
         <span className="text-xs">
           Created:{formatDateMonthDayTime(new Date(dateCreated))}
         </span>
+        <div className="inline-block space-x-1">
+          <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-white opacity-0"></span>
+          <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-white opacity-0"></span>
+          <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-white opacity-0"></span>
+        </div>
         <div className="button__container flex gap-1">
-          <button className=" touch-manipulation p-1" onClick={() => handleDelete(id)}>
+          <button
+            className="ease-elastic-wild touch-manipulation p-1 transition-all duration-200 hover:scale-105 hover:rotate-12 active:scale-90 active:rotate-3 active:opacity-50"
+            onClick={() => handleDelete(id)}
+          >
             <Trash2 size={24} />
           </button>
-          <button className=" touch-manipulation p-1" onClick={() => handleComplete(id, is_completed)}>
+          <button
+            className="ease-elastic-wild touch-manipulation p-1 transition-all duration-200 hover:scale-105 hover:-rotate-12 active:scale-90 active:rotate-3 active:opacity-50"
+            onClick={() => handleComplete(id, is_completed)}
+          >
             <Check size={24} />
           </button>
         </div>
-      </div>
+      </footer>
     </Card>
   );
 }

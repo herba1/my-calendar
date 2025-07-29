@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import TextPlugin from "gsap/TextPlugin";
 import { useReducer, useState, useRef, use } from "react";
 import { toast } from "sonner";
+import { array } from "zod";
 
 gsap.registerPlugin(TextPlugin);
 
@@ -58,12 +59,19 @@ export default function TextAreaForm({
         }),
       });
       const data = await response.json();
-      console.log(data);
       let message = [];
-      if(data.data.newTask.length>0)message.push(`${data.data.newTask.length} Task Created`);
-      if(data.data.deleted)message.push(`${data.data.deleted} Task Removed `);
-      if(data.data.modified)message.push(`${data.data.modified} Task Modified`);
-      toast(message.join(', '))
+      if (data.data) {
+        if (data?.data?.newTask?.length > 0)
+          message.push(`${data.data.newTask.length} Task Created`);
+        if (data?.data?.deleted)
+          message.push(`${data.data.deleted} Task Removed `);
+        if (data?.data?.modified)
+          message.push(`${data.data.modified} Task Modified`);
+      }
+      else if (message.length == 0) {
+        message.push("Something went wrong, try again.");
+      }
+      toast(message.join(", "));
       setTaskStateProp("default");
       setInput("");
       setInputSize(0);
@@ -162,7 +170,7 @@ export default function TextAreaForm({
             disabled={taskState === "loading" || inputSize == 0}
             type="submit"
           >
-            {taskState === "loading" ? "One sec..." : "Go!"}
+            Go!
           </Button>
         </div>
       </div>

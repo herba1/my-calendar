@@ -20,7 +20,7 @@ export default async function Layout({ children }) {
     <SidebarProvider>
       <AppSidebar user={user} />
       <SidebarInset>
-        <Toaster closeButton position={"top-center"} className={`max-w-3xs font-bold`} />
+        <Toaster closeButton position={"top-center"} className={`font-bold`} />
         <main className={` ${dmSans.className}`}>{children}</main>
       </SidebarInset>
     </SidebarProvider>

@@ -18,6 +18,8 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
   const state = useRef(null);
   const [isFlip, setIsFlip] = useState(false);
   const [lastDate, setLastDate] = useState(false);
+  // for task card ui
+  const [loading, setLoading] = useState(false);
 
   const { contextSafe } = useGSAP(
     () => {
@@ -32,7 +34,6 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
           duration: 0.5,
           ease: "power4.out",
           stagger: 0.07,
-          onComplete: () => console.log('tween done'),
         });
       }
     },
@@ -61,8 +62,10 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
   // PUT task to update send object of updated tast and task id
   const handleComplete = contextSafe(async (task_id, is_completed) => {
     try {
+      // gsap flip logic
       state.current = Flip.getState(".taskCard");
       setIsFlip(true);
+      setLoading(true);
       const response = await fetch("../../api/task", {
         method: "PUT",
         headers: {
@@ -76,8 +79,11 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
       if (!response.ok) {
         throw new Error(`response:${response.status}`);
       }
+      // Clean up loading BEFORE task change triggers re-render
+      setLoading(false);
       handleTaskChange();
     } catch (error) {
+      setLoading(false);
       console.error(error);
     }
   });
@@ -88,6 +94,7 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
       // flip setup
       state.current = Flip.getState(".taskCard");
       setIsFlip(true);
+      setLoading(true);
       const response = await fetch("../../api/task", {
         method: "DELETE",
         headers: {
@@ -99,12 +106,15 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
         throw new Error(`response error ${response.status}`);
       }
       const data = await response.json();
+      setLoading(false);
       handleTaskChange();
     } catch (e) {
+      setLoading(false);
       console.error(`${e}`);
     }
   });
 
+  // trigger flip form last state
   useLayoutEffect(() => {
     if (isFlip) {
       Flip.from(state.current, {
@@ -116,6 +126,7 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
     }
   }, [tasks]);
 
+  // list sort, time -> completed
   let sortedTask = [...tasks].sort((a, b) => {
     return new Date(a.due_at) - new Date(b.due_at);
   });
@@ -127,6 +138,7 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
   let tasksCards = sortedTask.map((task) => {
     return (
       <TaskCard
+        loading={loading}
         className="taskCard"
         handleDelete={handleDelete}
         handleComplete={handleComplete}
@@ -146,10 +158,8 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
   return (
     <div
       ref={container}
-      className={`cards-container flex flex-col items-center justify-center gap-4 p-2 *:last:mb-64 lg:*:last:mb-0`}
+      className={`cards-container ${loading ? "opacity-90" : "opacity-100"} ease-out-1 transition-all relative flex flex-col items-center justify-center gap-4 overflow-x-clip p-2 *:last:mb-64 lg:*:last:mb-0`}
     >
-      {/* <Button onClick={handleSubmit}>submit</Button> */}
-      {/* {taskState === "loading" && <TaskCardsSkeleton></TaskCardsSkeleton>} */}
       {tasksCards.length ? (
         tasksCards
       ) : (

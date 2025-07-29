@@ -35,12 +35,12 @@ export default function Home() {
 
   const fetchTask = async () => {
     try {
+      setTaskState("loading")
       const response = await fetch("../../api/task/");
       if (!response.ok) {
         throw new Error(`response error ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
       setTasks(data);
       setTaskState("default");
     } catch (e) {
@@ -209,6 +209,7 @@ export default function Home() {
       >
         <ListHeader
           taskSize={dayTask.length}
+          taskState={taskState}
           date={date}
           time={time}
           className={`lg:bg-background-light/90 z-10 w-full rounded-md border-b-2 border-black/10 py-4 backdrop-blur-md lg:sticky lg:top-0`}
@@ -238,6 +239,8 @@ export default function Home() {
             dayMaxEvents={2}
             initialView="dayGridMonth"
             height={"100%"}
+            aspectRatio={1.35}
+            fixedWeekCount={true}
             headerToolbar={false}
             weekends={true}
             events={calendarTask}
@@ -258,7 +261,7 @@ export default function Home() {
           <div className="h-50 lg:hidden"></div>
         </div>
       </div>
-      <div className="bg-sidebar/90 fixed bottom-0 z-10 col-span-6 col-start-0 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs lg:static lg:mb-12 lg:inline-block lg:w-full lg:rounded-md">
+      <div className="bg-sidebar/90 fixed bottom-0 z-10 col-span-6 col-start-0 max-h-fit w-full rounded-t-md shadow-md backdrop-blur-xs md:pr-14 lg:static lg:mb-12 lg:inline-block lg:w-full lg:rounded-md lg:pr-0">
         <DateChanger
           changeDay={changeDay}
           changeDayToday={changeDayToday}

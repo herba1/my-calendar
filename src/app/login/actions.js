@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect,} from "next/navigation";
+import { redirect } from "next/navigation";
 
 // import { createClient } from '@/utils/supabase/server'
 import { createClient } from "../utils/supabase/server";
@@ -26,7 +26,7 @@ export async function login(formData) {
   redirect("/");
 }
 
-export async function loginMagicLink(formData) {
+export async function loginMagicLink(prevState,formData) {
   const supabase = await createClient();
 
   // type-casting here for convenience
@@ -41,7 +41,7 @@ export async function loginMagicLink(formData) {
   });
 
   if (error) {
-    redirect("/error");
+    return {error:'Error try again'}
   }
 
   revalidatePath("/", "layout");
@@ -73,7 +73,7 @@ export async function logout() {
   const { data, error } = await supabase.auth.signOut();
   if (error) {
     console.error(error);
-  redirect("/error");
+    redirect("/error");
   }
   revalidatePath("/", "layout");
   redirect("/login");
@@ -120,5 +120,27 @@ export async function setUsernameInitial(formData) {
   }
   console.log("after name change");
   revalidatePath("/", "layout");
-  redirect('/task')
+  redirect("/task");
 }
+
+export async function changeName(prevState, formData) {
+  let name = formData.get("name");
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    let { data, error } = await supabase.auth.updateUser({
+      data: { name: name },
+    });
+    if (data) {
+      return { success: "Successfully changed Name!" };
+    } else if (error) {
+      return { error: "Error changing Name try again." };
+    }
+  }
+  console.log("after name change");
+  revalidatePath("/", "layout");
+}
+
+

@@ -181,3 +181,12 @@
   color: oklch(0% 0 0);
   font-weight: bold;
 }
+
+/* Smooth height transitions */
+.fc-scroller {
+  transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.fc-daygrid-body {
+  transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}

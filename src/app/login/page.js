@@ -1,3 +1,4 @@
+'use client'
 import {
   CardContent,
   CardDescription,
@@ -19,8 +20,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
+import { useActionState } from "react";
 
 export default function LoginPage() {
+  const [emailState, emailAction, emailPending] = useActionState(loginMagicLink,null)
   return (
     <div className="relative flex h-svh max-w-full items-center justify-center">
       <Card className={`w-full max-w-sm`}>
@@ -68,9 +71,10 @@ export default function LoginPage() {
               <Button
                 variant={``}
                 className={`w-full`}
-                formAction={loginMagicLink}
+                formAction={emailAction}
+                disabled={emailPending}
               >
-               Continue with Email 
+               {emailPending?'One second...':'Continue with email'}
               </Button>
             </div>
             {/* <Button formAction={signup}>Sign up</Button> */}
