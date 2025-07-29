@@ -115,7 +115,7 @@ export default function TextAreaForm({
             });
           },
         });
-      } else {
+      } else if(taskState == "default") {
         gsap.killTweensOf(".dot");
         gsap.to(".dot", {
           opacity: 0,

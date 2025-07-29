@@ -30,11 +30,6 @@ export default function TaskCard({
   is_completed = false,
   tags,
 }) {
-  const container = useRef(null);
-  const { conextSafe } = useGSAP(() => {}, {
-    scope: container.current,
-    dependencies: [loading],
-  });
 
   let badgeClassName = "";
   if (priority === "low") {
@@ -47,9 +42,8 @@ export default function TaskCard({
 
   return (
     <Card
-      ref={container}
       className={clsx(
-        `flex w-full flex-col ${badgeClassName} ${loading ? " animate-pulse opacity-50" : ""} gap-6 p-2 text-white ${className}`,
+        `flex w-full flex-col ${badgeClassName} gap-6 p-2 text-white ${className}`,
         is_completed ? "saturate-0" : "",
       )}
     >

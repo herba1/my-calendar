@@ -42,6 +42,7 @@ export default function Home() {
       }
       const data = await response.json();
       setTasks(data);
+      // this is breaking flip
       setTaskState("default");
     } catch (e) {
       console.error(e);
@@ -105,6 +106,20 @@ export default function Home() {
 
   const handleTaskChange = () => {
     fetchTask();
+  };
+
+  const handleTaskChangeNoState = async () => {
+    try {
+      const response = await fetch("../../api/task/");
+      if (!response.ok) {
+        throw new Error(`response error ${response.status}`);
+      }
+      const data = await response.json();
+      setTasks(data);
+      // No taskState change needed - we never set it to loading
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const calendarTask = tasks.map((task) => {
@@ -216,10 +231,8 @@ export default function Home() {
         />
         <TaskCards
           date={date}
-          handleTaskChange={handleTaskChange}
+          handleTaskChange={handleTaskChangeNoState}
           tasks={dayTask}
-          taskState={taskState}
-          setTaskState={setTaskState}
         ></TaskCards>
       </div>
       <div
