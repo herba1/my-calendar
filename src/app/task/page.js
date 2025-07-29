@@ -135,11 +135,11 @@ export default function Home() {
         description: task.description,
       },
       backgroundColor:
-        task.priority === "high"
+        task.priority === "High"
           ? "#ef4444" // red-500
-          : task.priority === "medium"
+          : task.priority === "Medium"
             ? "oklch(0.795 0.184 86.047)" // amber-500
-            : task.priority === "low"
+            : task.priority === "Low"
               ? "oklch(0.723 0.219 149.579)" // blue-500
               : "#6b7280",
       ...extra,

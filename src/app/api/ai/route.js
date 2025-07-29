@@ -4,73 +4,106 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/app/utils/supabase/server";
 import { userAgent } from "next/server";
 
-async function getGemini(message, tasks, uid, currentDateTime) {
+async function getGemini(
+  message,
+  tasks,
+  uid,
+  currentDateTime,
+  userTimezone,
+  prevMessage,
+) {
   try {
     // console.log("getGemini");
     // console.log(tasks);
     console.log(currentDateTime);
+    console.log(userTimezone);
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
     const config = {
-      maxOutputTokens: 2000,
+      maxOutputTokens: 7000,
       responseMimeType: "application/json",
       systemInstruction: [
         {
-          text: `
-          
-  You must follow all of these guidelines and rules.
-  created_at timestamp with time zone null default now(),
-  due_at timestamp with time zone null,
-  title text not null default 'Unnamed Task'::text,
-  description text null,
-  tags json null,
-  is_completed boolean not null default false,
-  is_recurring boolean not null default false,
-  priority text not null default 'medium'::text,
-  user_id is the current authenticated users id, never change this ID no matter what always make sure it is as you receive it, should u somehow not get anything just leave it null
-  !NEVER change a task_id
-  based on this schema create a json, and i assert that you only reply in json based on the schema and based on me talking about what i have to do, if no task is found you may return empty json object, try to create maningful task however based on my thoghts even if it may seem minor it could be important, tags shoudl be only strings and use no delimters. Tags should not be delimited and simply be strings
+          text: `Task Management Assistant - Smart Scheduler
 
-  currentTask:${JSON.stringify(tasks)}
-  currentUserID:${uid}
-  
-  At the TOP of the JSON make sure you add wether a DELETE method, or POST method, or PUT method based on language and like so method:method based on language you can assume most of the time it will be POST, if no task is found make an Error key value pair with explanation of not found
-  make sure all responses even if 1 item(TASK/object) is inside an array, however each task shoudl but its own object,
-  Current date/time: ${currentDateTime} for reference, if today is referenced make sure you use todays date even if its not within business hours, !Default to always make task after the current time not before unless otherwise specified
+You are an intelligent task parser that understands natural language and converts it into structured task data. You excel at understanding context, implicit timing, and user intent.
 
-SCHEDULING RULES:
-- AVOID overlapping due_at times unless user explicitly requests overlaps
-- Prefer scheduling tasks in hour or half-hour slots (e.g., 9:00 AM, 9:30 AM, 10:00 AM)
-- When scheduling multiple tasks, spread them across available time slots(as in after the current date/time unless specified)
-- Check existing tasks in currentTask list to find free time slots
-- If no specific time mentioned, schedule for TODAY within reasonable business hours (9 AM - 8 PM) or later if TODAY takes prioirty
-- Default to scheduling tasks for today unless user specifies future dates
-- For urgent/high priority tasks: schedule sooner, medium priority: within normal hours, low priority: can be later
-- Only overlap times if user says "at the same time", "together with", "during", or similar explicit language
+Output: [{method: "POST/PUT/DELETE", ...fields}] ONLY
 
-TASK QUALITY RULES:
-- Create descriptive, actionable titles (not just "meeting" but "Team standup meeting with marketing")
-- Include context in descriptions when available (location, attendees, purpose, etc.)
-- Use proper capitalization for titles (Title Case)
-- Infer reasonable priorities: urgent words (ASAP, urgent, important) = high, casual words (maybe, eventually) = low
-- Add relevant tags based on context (work, personal, health, shopping, etc.)
-- For recurring language ("every day", "weekly"), set is_recurring: true
-  For delete or post figure out witch tasks form currentTask list is relevant and provide the wanted method along with the task_id, for post include the fields to be updated, return NO task_id for new task
-  When responding what i mean by array is that the tasks and methods are within 1 arry so every response no matter will be [{task and methods here}]
-  like this :[{//task and method here},{...repeat}],
-  exaclty like that no extra labels or information, never add any other text no matter what the input is always respond with these guidelines.
-  `,
+Schema: due_at(timestamp UTC), title(text), is_completed(bool), priority(text), user_id(uuid)
+
+CRITICAL TIMEZONE RULES:
+- You receive Current time in UTC and user's timezone
+- ALWAYS convert UTC to user's local time to understand what day/time it is for the user
+- Example: If UTC is "2025-07-29T04:27:00Z" and timezone is "America/Los_Angeles":
+  - UTC time: July 29, 4:27 AM
+  - User's local time: July 28, 9:27 PM (UTC-7 for PDT)
+  - So "today" = July 28, "tomorrow" = July 29
+- When user says "today", use their LOCAL today, not UTC today
+- All due_at outputs must be in UTC format (ending with 'Z')
+
+TIME CONVERSION PROCESS:
+1. Convert current UTC time to user's timezone to know their actual date/time
+2. Parse user's request in their timezone context
+3. Convert the scheduled time back to UTC for storage
+
+INTELLIGENT TIME PARSING:
+- Infer reasonable times from context (e.g., "lunch with Sarah" → 11:00pm, "morning standup" → 9:00am)
+- Understand work patterns (meetings during business hours, personal tasks can be evenings/weekends)
+- "tonight" means this evening, typically 1-3 hours from current time but use judgment
+- For vague times, consider the task type: work tasks → business hours, entertainment → evening
+- Multiple tasks mentioned together should be scheduled sequentially with smart spacing
+
+CONTEXT AWARENESS:
+- If user mentions "after X", schedule accordingly 
+- Understand task dependencies ("prep for meeting then meeting" → prep comes first)
+- Recognize recurring patterns without explicit times ("daily standup" → probably 8-10am)
+- Consider task duration: quick tasks (calls) ~29min, meetings ~1hr, projects ~2hrs
+
+NATURAL LANGUAGE UNDERSTANDING:
+- "end the day with" → schedule late evening (8-11pm)
+- "start with" → schedule early in available time
+- "squeeze in" → find small gap or schedule tightly
+- "when I get time" → low priority, flexible timing
+- Understand urgency from tone, not just keywords
+
+SMART DEFAULTS:
+- Meals: breakfast(6-9am), lunch(12-1pm), dinner(6-8pm)
+- Work tasks: prefer business hours unless specified
+- Exercise: early morning or evening typically
+- Entertainment/relaxation: evenings and weekends
+
+TITLE GENERATION:
+- Infer professional titles from casual input ("call Bob about the thing" → "Call Bob: Project discussion")
+- Add context when available ("email" → "Send email: [topic if mentioned]")
+- Group related items smartly ("buy milk, eggs" → "Grocery shopping: milk, eggs")
+
+PRIORITY INTELLIGENCE:
+- Deadlines mentioned → high priority
+- "when I can" / "eventually" → low priority  
+- Work during work hours → medium-high priority
+- Personal tasks → medium unless urgent
+
+Remember: You're helping someone organize their day. Be smart about timing, understand context, and create a schedule that makes sense for a real person.`,
         },
       ],
     };
-    const model = "gemini-2.0-flash";
+    const model = "gemini-2.5-flash";
     const contents = [
       {
         role: "user",
         parts: [
           {
-            text: `${message}`,
+            text: `
+            Context:
+Tasks: ${JSON.stringify(tasks)}
+UserID: ${uid}
+Current: ${currentDateTime} UTC
+Timezone: ${userTimezone || "America/Los_Angeles"}
+Previous Message for Context: "${prevMessage}"
+Request: ${message}
+            `,
           },
         ],
       },
@@ -81,14 +114,24 @@ TASK QUALITY RULES:
       config,
       contents,
     });
+
+
+
     if (response && response.text) {
+      console.log("Gemini response:", response.text);
       return response.text;
     } else {
-      throw new Error("Invalid or bad response from AI");
+      console.error("Unexpected response structure:", response);
+      throw new Error("Invalid response structure from Gemini");
     }
   } catch (error) {
-    console.error("AI processing error:", error);
-    return JSON.stringify([{ error: "Failed to process ai response" }]);
+    console.error("Detailed AI processing error:", {
+      message: error.message,
+      stack: error.stack,
+    });
+    return JSON.stringify([
+      { error: error.message || "Failed to process AI response" },
+    ]);
   }
 }
 
@@ -159,11 +202,14 @@ export async function POST(request) {
     }
     const body = await request.json();
     // setup for any ai provider
+    console.log(body);
     const data = await getGemini(
       body.message,
       body.tasks,
       uid,
       body.currentDateTime,
+      body.userTimezone,
+      body.prevMessage,
     );
     const res = await parseTask(data);
     const resData = await res.json();
@@ -202,7 +248,7 @@ async function parseTask(text) {
     let modified = 0;
     for (const task of tasks) {
       if (task.error) {
-        console.log(error);
+        console.log(task.error);
         continue;
       }
       const { method, ...cleanTask } = task;

@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Essence Demo",
+  title: "essence",
   description:
     "Quickly speak your mind and dump your thoughts on your plans, tasks and scheudle. The AI will sort it out for you, with a nice to look at UI",
 };

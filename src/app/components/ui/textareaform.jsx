@@ -22,6 +22,7 @@ export default function TextAreaForm({
   const [inputSize, setInputSize] = useState(0);
   const textArea = useRef(null);
   const container = useRef(null);
+  const [prevMessage, setPrevMessage] = useState('');
 
   function handleInput(e) {
     setInput(e.target.value);
@@ -29,7 +30,7 @@ export default function TextAreaForm({
   }
 
   function handleKeyDown(e) {
-    if ((e.key === "Enter" && e.metaKey) || e.ctrlKey)
+    if ((e.key === "Enter" && e.metaKey) || e.key==="Enter" && e.ctrlKey)
       e.target.form.requestSubmit();
   }
 
@@ -46,6 +47,8 @@ export default function TextAreaForm({
       };
     });
     try {
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // e.g., "America/Los_Angeles"
+      const currentDateTime = new Date().toISOString();
       const response = await fetch("../../api/ai", {
         method: "POST",
         headers: {
@@ -55,10 +58,13 @@ export default function TextAreaForm({
           message: input,
           // for now im sending entire tasks
           tasks: tasks,
-          currentDateTime: `${new Date().toLocaleString()} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`,
+          currentDateTime: currentDateTime,
+          userTimezone: userTimezone,
+          prevMessage:prevMessage,
         }),
       });
       const data = await response.json();
+      setPrevMessage(input);
       let message = [];
       if (data.data) {
         if (data?.data?.newTask?.length > 0)
@@ -67,8 +73,7 @@ export default function TextAreaForm({
           message.push(`${data.data.deleted} Task Removed `);
         if (data?.data?.modified)
           message.push(`${data.data.modified} Task Modified`);
-      }
-      else if (message.length == 0) {
+      } else if (message.length == 0) {
         message.push("Something went wrong, try again.");
       }
       toast(message.join(", "));
@@ -115,7 +120,7 @@ export default function TextAreaForm({
             });
           },
         });
-      } else if(taskState == "default") {
+      } else if (taskState == "default") {
         gsap.killTweensOf(".dot");
         gsap.to(".dot", {
           opacity: 0,

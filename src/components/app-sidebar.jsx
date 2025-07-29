@@ -32,12 +32,12 @@ const data = {
   navMain: [
     {
       title: "Task",
-      url: "/home",
+      url: "/task",
       icon: Calendar,
     },
     {
       title: "Contact",
-      url: "/",
+      url: "mailto:herbart.dev@gmail.com",
       icon: Mail,
     },
   ],
@@ -52,7 +52,7 @@ export function AppSidebar({ user, ...props}) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href={"#"} className="group cursor-pointer">
+            <Link href={"/task"} className="group cursor-pointer">
               <SidebarMenuButton className={`cursor-pointer gap-0`}>
                 <img
                   className={`h-full transition-transform group-hover:rotate-12 ${isMobile ? "hidden" : ""}`}

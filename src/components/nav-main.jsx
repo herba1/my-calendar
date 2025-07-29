@@ -29,7 +29,7 @@ export function NavMain({ items,path }) {
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem className={` ${((item.title.toLowerCase()) == path.slice(1,path.length))?"bg-accent ":""}`} key={item.title}>
-              <Link href={'#'} className=" ">
+              <Link href={item.url} className=" ">
                 <SidebarMenuButton className={` cursor-pointer`} tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
