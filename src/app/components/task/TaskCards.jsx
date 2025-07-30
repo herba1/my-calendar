@@ -126,16 +126,18 @@ export default function TaskCards({
   });
 
   // trigger flip form last state
-  useLayoutEffect(() => {
+  useGSAP(() => {
     if (isFlip) {
       Flip.from(state.current, {
         ease: "power4.out",
+        absolute:true,
+        absoluteOnLeave:true,
         onComplete: () => {
           setIsFlip(false);
         },
       });
     }
-  }, [tasks]);
+  }, {dependencies:[tasks]});
 
   // list sort, time -> completed
   let sortedTask = [...tasks].sort((a, b) => {
@@ -169,7 +171,7 @@ export default function TaskCards({
   return (
     <div
       ref={container}
-      className={`cards-container flex flex-col items-center justify-center gap-4 overflow-x-clip p-2 *:last:mb-64 lg:*:last:mb-0`}
+      className={`cards-container flex flex-col items-center justify-center gap-4 overflow-x-clip p-2 *:lst:mb-64 lg:*:last:mb-0`}
     >
       {tasksCards.length ? (
         tasksCards
@@ -180,6 +182,7 @@ export default function TaskCards({
           No task here... try making one!
         </span>
       )}
+      <div className="h-64 lg:hidden"></div>
     </div>
   );
 }
