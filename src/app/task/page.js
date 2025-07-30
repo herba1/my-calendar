@@ -35,14 +35,13 @@ export default function Home() {
 
   const fetchTask = async () => {
     try {
-      setTaskState("loading")
+      setTaskState("loading");
       const response = await fetch("../../api/task/");
       if (!response.ok) {
         throw new Error(`response error ${response.status}`);
       }
       const data = await response.json();
       setTasks(data);
-      // this is breaking flip
       setTaskState("default");
     } catch (e) {
       console.error(e);
@@ -135,11 +134,11 @@ export default function Home() {
         description: task.description,
       },
       backgroundColor:
-        task.priority === "High"
+        task.priority.toLowerCase() === "high"
           ? "#ef4444" // red-500
-          : task.priority === "Medium"
+          : task.priority.toLowerCase() === "medium"
             ? "oklch(0.795 0.184 86.047)" // amber-500
-            : task.priority === "Low"
+            : task.priority.toLowerCase() === "low"
               ? "oklch(0.723 0.219 149.579)" // blue-500
               : "#6b7280",
       ...extra,
@@ -232,6 +231,7 @@ export default function Home() {
         <TaskCards
           date={date}
           handleTaskChange={handleTaskChangeNoState}
+          taskState={taskState}
           tasks={dayTask}
         ></TaskCards>
       </div>
@@ -245,7 +245,7 @@ export default function Home() {
           className={`m-2 hidden lg:flex`}
           isToday={isToday}
         />
-        <div className="h-full max-h-full w-full">
+        <div className="h-full max-h-full w-full calendar-container">
           <FullCalendar
             ref={calendar}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}

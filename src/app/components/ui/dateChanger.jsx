@@ -88,7 +88,7 @@ export default function DateChanger({
     { scope: container.current, dependencies: [date] },
   );
 
-  let buttonClassName = ` active:opacity-80 active:scale-95 transition-all ease-out-3  hover:opacity-80 touch-manipulation bg-white p-1 rounded-md inline-block outline-black/10 outline-2 shadow-md `;
+  let buttonClassName = ` md:my-1.5 active:opacity-80 active:scale-95 transition-all ease-out-3  hover:opacity-80 touch-manipulation bg-white p-1 rounded-md inline-block outline-black/10 outline-2 shadow-md `;
   return (
     <div
       ref={container}

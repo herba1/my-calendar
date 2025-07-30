@@ -32,9 +32,9 @@ export default function TaskCard({
 }) {
 
   let badgeClassName = "";
-  if (priority === "Low") {
+  if (priority.toLowerCase() === "low") {
     badgeClassName = " bg-green-500 ";
-  } else if (priority === "High") {
+  } else if (priority.toLowerCase()  === "high") {
     badgeClassName = " bg-red-500 ";
   } else {
     badgeClassName = " bg-yellow-500 ";

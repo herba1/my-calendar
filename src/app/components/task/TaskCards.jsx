@@ -8,15 +8,24 @@ import gsap from "gsap";
 import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
+import SplitText from "gsap/SplitText";
+import { ContentContainer } from "@fullcalendar/core/internal";
+import { Split } from "lucide-react";
 
-gsap.registerPlugin(Flip);
+gsap.registerPlugin(Flip, SplitText);
 
-export default function TaskCards({ tasks, handleTaskChange, date }) {
+export default function TaskCards({
+  tasks,
+  handleTaskChange,
+  date,
+  taskState,
+}) {
   // CREATE A NEW TASK
   const container = useRef(null);
   const state = useRef(null);
   const [isFlip, setIsFlip] = useState(false);
   const [lastDate, setLastDate] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(true);
 
   const { contextSafe } = useGSAP(
     () => {
@@ -35,6 +44,37 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
       }
     },
     { scope: container.current, dependencies: [tasks, date] },
+  );
+
+  useGSAP(
+    () => {
+      if (tasks.length === 0 && taskState === "default" && isEmpty) {
+        setIsEmpty(false);
+        let split = SplitText.create(".emptyTaskMessage", {
+          type: "lines,chars",
+          mask: "lines",
+        });
+        gsap.set(".emptyTaskMessage", { opacity: 1 });
+        gsap.fromTo(
+          split.chars,
+          {
+            yPercent: -100,
+            opacity: 0,
+          },
+          {
+            opacity: 1,
+            yPercent: 0,
+            duration: 0.6,
+            stagger: 0.01,
+            ease: "power1.out",
+            onComplete: () => {
+              split.revert();
+            },
+          },
+        );
+      }
+    },
+    { scope: container.current, dependencies: [taskState, date] },
   );
 
   // PUT task to update send object of updated tast and task id
@@ -134,7 +174,9 @@ export default function TaskCards({ tasks, handleTaskChange, date }) {
       {tasksCards.length ? (
         tasksCards
       ) : (
-        <span className="my-32 inline-block h-full text-black/60">
+        <span
+          className={`emptyTaskMessage ${isEmpty ? "opacity-0" : "opacity-100"} my-32 inline-block h-full text-black/60`}
+        >
           No task here... try making one!
         </span>
       )}

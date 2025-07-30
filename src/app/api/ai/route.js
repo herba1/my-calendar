@@ -33,6 +33,8 @@ Output: [{method: "POST/PUT/DELETE", ...fields}] ONLY
 
 Schema: due_at(timestamp UTC), title(text), is_completed(bool), priority(text), user_id(uuid)
 
+INFO NEEDED: for PUT and DELETE always look at the task referred or inferred and use the taskid task_id to do the action respectivley.
+
 CRITICAL TIMEZONE RULES:
 - You receive Current time in UTC and user's timezone
 - ALWAYS convert UTC to user's local time to understand what day/time it is for the user
@@ -101,8 +103,8 @@ Tasks: ${JSON.stringify(tasks)}
 UserID: ${uid}
 Current: ${currentDateTime} UTC
 Timezone: ${userTimezone || "America/Los_Angeles"}
-Previous Message for Context: "${prevMessage}"
-Request: ${message}
+Previous Message for Context {This previous message should be ignored if Request/Current message does no reference anything that may connect to it}: "${prevMessage}"
+Request/Current Message: ${message}
             `,
           },
         ],
@@ -114,8 +116,6 @@ Request: ${message}
       config,
       contents,
     });
-
-
 
     if (response && response.text) {
       console.log("Gemini response:", response.text);
@@ -184,10 +184,13 @@ export async function POST(request) {
         } else {
           // token limit hit today
           console.log("Token Limit hit");
-          return Response.json(
-            { message: "Token limit hit for today" },
-            { status: 400, headers: { "Content-Type": "application/json" } },
-          );
+          return Response.json({
+            data: {
+              error: "Token limit hit for today",
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          });
         }
         // else increment token usage
       } else {

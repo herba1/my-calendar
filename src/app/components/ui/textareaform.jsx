@@ -22,7 +22,7 @@ export default function TextAreaForm({
   const [inputSize, setInputSize] = useState(0);
   const textArea = useRef(null);
   const container = useRef(null);
-  const [prevMessage, setPrevMessage] = useState('');
+  const [prevMessage, setPrevMessage] = useState("");
 
   function handleInput(e) {
     setInput(e.target.value);
@@ -30,7 +30,7 @@ export default function TextAreaForm({
   }
 
   function handleKeyDown(e) {
-    if ((e.key === "Enter" && e.metaKey) || e.key==="Enter" && e.ctrlKey)
+    if ((e.key === "Enter" && e.metaKey) || (e.key === "Enter" && e.ctrlKey))
       e.target.form.requestSubmit();
   }
 
@@ -60,22 +60,28 @@ export default function TextAreaForm({
           tasks: tasks,
           currentDateTime: currentDateTime,
           userTimezone: userTimezone,
-          prevMessage:prevMessage,
+          prevMessage: prevMessage,
         }),
       });
       const data = await response.json();
+      console.log(data);
+      console.log(data.error)
       setPrevMessage(input);
       let message = [];
       if (data.data) {
         if (data?.data?.newTask?.length > 0)
           message.push(`${data.data.newTask.length} Task Created`);
-        if (data?.data?.deleted)
+        if (data?.data?.deleted > 0)
           message.push(`${data.data.deleted} Task Removed `);
-        if (data?.data?.modified)
+        if (data?.data?.modified > 0)
           message.push(`${data.data.modified} Task Modified`);
-      } else if (message.length == 0) {
+        if (data?.data?.error)
+          message.push(`${data.data.error}, Come back tomorrow or msg me!`);
+      }
+      if (message.length === 0) {
         message.push("Something went wrong, try again.");
       }
+      console.log(message);
       toast(message.join(", "));
       setTaskStateProp("default");
       setInput("");
