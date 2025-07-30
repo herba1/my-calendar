@@ -1,8 +1,9 @@
-import { Geist, Geist_Mono,DM_Sans } from "next/font/google";
+import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AuthProvider } from "./context/AuthContext";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -10,9 +11,9 @@ const geistSans = Geist({
 });
 
 const dmSans = DM_Sans({
-  weight:["variable"],
-  subsets:['latin']
-})
+  weight: ["variable"],
+  subsets: ["latin"],
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -31,7 +32,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${dmSans.className} antialiased`}
       >
-          {children}
+        <Analytics />
+        {children}
       </body>
     </html>
   );
