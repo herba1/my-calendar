@@ -64,8 +64,6 @@ export default function TextAreaForm({
         }),
       });
       const data = await response.json();
-      console.log(data);
-      console.log(data.error)
       setPrevMessage(input);
       let message = [];
       if (data.data) {
@@ -81,7 +79,6 @@ export default function TextAreaForm({
       if (message.length === 0) {
         message.push("Something went wrong, try again.");
       }
-      console.log(message);
       toast(message.join(", "));
       setTaskStateProp("default");
       setInput("");

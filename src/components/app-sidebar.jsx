@@ -19,7 +19,6 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 
 // This is sample data.

@@ -29,7 +29,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
 import { logout } from "@/app/login/actions";

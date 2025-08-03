@@ -2,7 +2,6 @@ import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { AuthProvider } from "./context/AuthContext";
 import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
