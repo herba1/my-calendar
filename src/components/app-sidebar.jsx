@@ -52,16 +52,17 @@ export function AppSidebar({ user, ...props}) {
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href={"/task"} className="group cursor-pointer">
-              <SidebarMenuButton className={`cursor-pointer gap-0`}>
+              <SidebarMenuButton aria-label="Task Page" className={`cursor-pointer gap-0`}>
                 <img
+                aria-hidden="true"
                   className={`h-full transition-transform group-hover:rotate-12 ${isMobile ? "hidden" : ""}`}
                   src={"/essence_badge.svg"}
                 ></img>
                 {open && (
-                  <img className={`h-full ${isMobile?' hidden ':''} `} src={"/essence_half.svg"}></img>
+                  <img aria-hidden className={`h-full ${isMobile?' hidden ':''} `} src={"/essence_half.svg"}></img>
                 )}
                 {isMobile && 
-                  <img className={`h-full `} src={"/essence_logo.svg"}></img>
+                  <img aria-hidden className={`h-full `} src={"/essence_logo.svg"}></img>
                 
                 }
               </SidebarMenuButton>

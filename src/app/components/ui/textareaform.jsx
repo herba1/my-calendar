@@ -145,7 +145,7 @@ export default function TextAreaForm({
       ref={container}
       action={"#"}
       onSubmit={handleSubmit}
-      className={`w-full p-2 ${className} `}
+      className={`w-full bg-neutral-100 rounded-lg p-2 ${className} `}
     >
       <div
         onClick={() => {
@@ -166,10 +166,10 @@ export default function TextAreaForm({
           onKeyDown={handleKeyDown}
         ></Textarea>
         <div className="bottom flex items-center justify-between">
-          <span className="align-text-bottom text-xs text-black/50">
+          <span className="align-text-bottom text-xs text-black/60">
             {inputSize}/500
           </span>
-          <div className="inline-block space-x-1">
+          <div aria-hidden className="inline-block space-x-1">
             <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-black opacity-0"></span>
             <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-black opacity-0"></span>
             <span className="dot inline-block aspect-square h-1.5 overflow-hidden rounded-full bg-black opacity-0"></span>

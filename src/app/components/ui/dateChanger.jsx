@@ -112,6 +112,7 @@ export default function DateChanger({
           onClick={() => {
             changeDay({ month: -1 });
           }}
+          aria-label="Previous Month"
         >
           <ChevronsLeft size={24} />
         </button>
@@ -121,6 +122,7 @@ export default function DateChanger({
           onClick={() => {
             changeDay({ day: -1 });
           }}
+          aria-label="Previous Day"
         >
           <ChevronLeft size={24} />
         </button>
@@ -135,6 +137,7 @@ export default function DateChanger({
           onClick={() => {
             changeDay({ day: 1 });
           }}
+          aria-label="Next Day"
         >
           <ChevronRight size={24} />
         </button>
@@ -144,6 +147,7 @@ export default function DateChanger({
           onClick={() => {
             changeDay({ month: 1 });
           }}
+          aria-label="Next Month"
         >
           <ChevronsRight size={24} />
         </button>
